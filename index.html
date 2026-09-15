@@ -9,11 +9,14 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
   --primary: #C41E3A;
+  --primary-hover: #a01830;
   --bg: #0a0a0a;
   --card: #111;
   --border: #2a2a2a;
   --text: #E8E8E8;
   --muted: #A0A0A0;
+  --success: #00b894;
+  --danger: #ff4444;
 }
 body {
   font-family: 'Inter', sans-serif;
@@ -37,10 +40,131 @@ body {
 .nav-links { display: flex; gap: 25px; align-items: center; }
 .nav-links a { color: var(--text); text-decoration: none; font-size: 14px; font-weight: 600; cursor: pointer; text-transform: uppercase; }
 .nav-links a:hover, .nav-links a.active { color: var(--primary); }
+.menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 24px;
+  cursor: pointer;
+}
 .cart-btn {
   background: var(--primary); color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;
 }
+.cart-btn:hover { background: var(--primary-hover); }
 .cart-count { background: white; color: var(--primary); border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+
+/* Sidebar for Categories */
+.sidebar-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1100;
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.3s;
+}
+.sidebar-overlay.active { opacity: 1; visibility: visible; }
+.sidebar {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 280px;
+  max-width: 85vw;
+  background: var(--card);
+  border-left: 1px solid var(--border);
+  z-index: 1101;
+  transform: translateX(100%);
+  transition: 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar.active { transform: translateX(0); }
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sidebar-title { font-size: 18px; font-weight: 700; color: var(--primary); }
+.sidebar-close { background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
+.sidebar-content { flex: 1; overflow-y: auto; padding: 15px; }
+.category-list { display: flex; flex-direction: column; gap: 8px; }
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.category-item:hover, .category-item.active {
+  border-color: var(--primary);
+  background: rgba(196, 30, 58, 0.1);
+}
+.category-item.active { border-color: var(--primary); }
+.category-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.category-name { font-weight: 600; font-size: 14px; }
+.category-count { margin-left: auto; background: var(--primary); color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+
+/* Cart Sidebar */
+.cart-sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 380px;
+  max-width: 90vw;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  z-index: 1102;
+  transform: translateX(-100%);
+  transition: 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+.cart-sidebar.active { transform: translateX(0); }
+.cart-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cart-title { font-size: 18px; font-weight: 700; color: var(--primary); }
+.cart-close { background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
+.cart-items { flex: 1; overflow-y: auto; padding: 15px; }
+.cart-empty { text-align: center; color: var(--muted); padding: 40px 0; }
+.cart-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.cart-item-image { width: 60px; height: 60px; border-radius: 6px; object-fit: cover; background: var(--card); }
+.cart-item-info { flex: 1; min-width: 0; }
+.cart-item-name { font-weight: 600; font-size: 13px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cart-item-price { color: var(--primary); font-weight: 700; font-size: 13px; margin-bottom: 8px; }
+.cart-item-qty { display: flex; align-items: center; gap: 8px; }
+.qty-btn { width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.qty-btn:hover { border-color: var(--primary); }
+.qty-value { min-width: 24px; text-align: center; font-weight: 600; }
+.cart-item-remove { color: var(--danger); background: none; border: none; font-size: 12px; cursor: pointer; padding: 4px; }
+.cart-footer {
+  padding: 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+.cart-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+.cart-total .amount { color: var(--primary); }
+.checkout-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
+.checkout-btn:hover { background: var(--primary-hover); }
+.checkout-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
 .hero { padding: 80px 0; text-align: center; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); border-bottom: 1px solid var(--border); }
 .hero h1 { font-size: 42px; font-weight: 900; margin-bottom: 10px; }
 .hero h1 span { color: var(--primary); }
@@ -61,19 +185,71 @@ body {
 .product-category { color: var(--primary); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
 .product-name { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
 .product-price { font-size: 18px; font-weight: 900; color: var(--primary); margin-bottom: 10px; }
-.add-cart-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 700; }
+.add-cart-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 700; transition: 0.2s; }
+.add-cart-btn:hover { background: var(--primary-hover); }
+.add-cart-btn.added { background: var(--success); }
 .footer { text-align: center; padding: 30px 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; margin-top: 50px; }
+
+.toast {
+  position: fixed; bottom: 20px; left: 20px; background: var(--success); color: white; padding: 12px 20px; border-radius: 6px; font-weight: 600; z-index: 2000; opacity: 0; transition: 0.3s;
+}
+.toast.error { background: var(--danger); }
+.toast.show { opacity: 1; }
+
+@media (max-width: 768px) {
+  .menu-btn { display: block; }
+  .nav-links a:not(.cart-btn) { display: none; }
+  .sort-bar { display: none; }
+}
 </style>
 </head>
 <body>
+
+<!-- Category Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="sidebar" id="categorySidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-title">التصنيفات</span>
+    <button class="sidebar-close" onclick="closeSidebar()">&times;</button>
+  </div>
+  <div class="sidebar-content">
+    <div class="category-list" id="categoryList">
+      <div class="category-item active" data-category="all" onclick="selectCategory('all', this)">
+        <span class="category-icon">📦</span>
+        <span class="category-name">الكل</span>
+        <span class="category-count" id="cat-count-all">0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Cart Sidebar -->
+<div class="sidebar-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <span class="cart-title">السلة (<span id="cartTotalItems">0</span>)</span>
+    <button class="cart-close" onclick="closeCart()">&times;</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">السلة فارغة</div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>الإجمالي</span>
+      <span class="amount" id="cartTotal">0 EGP</span>
+    </div>
+    <button class="checkout-btn" id="checkoutBtn" onclick="openCheckout()" disabled>إتمام الطلب</button>
+  </div>
+</div>
 
 <header class="header">
   <div class="container">
     <nav class="nav">
       <div class="logo" onclick="location.reload()">FIGURAX</div>
       <div class="nav-links" id="navLinks">
-        <a onclick="filterCategory('all')" class="active" id="cat-all">الكل</a>
-        <button class="cart-btn" onclick="alert('السلة قيد التفعيل')">
+        <button class="menu-btn" onclick="openSidebar()">☰</button>
+        <a href="admin.html" style="display:none;">لوحة التحكم</a>
+        <button class="cart-btn" onclick="openCart()">
            السلة <span class="cart-count" id="cartCount">0</span>
         </button>
       </div>
@@ -108,40 +284,271 @@ body {
   </div>
 </footer>
 
-<script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyIhW7xDJ9IV3Tgu9VEJFzxHZR-Uwtac8gei4u88MOUWjewlfgY13lhyYVHh157mQbS3g/exec';
+<div class="toast" id="toast"></div>
 
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbynfboa2e_4W6uPZhgVGpcY4yuX59gfvTGVRc70klU5KR3fM0SuxdaIBkgv1KNlCcmdhA/exec';
+
+// State
+let allProducts = [];
+let currentCategory = 'all';
+let cart = JSON.parse(localStorage.getItem('figurax_cart') || '[]');
+
+// DOM Elements
+const productsGrid = document.getElementById('productsGrid');
+const categoryList = document.getElementById('categoryList');
+const categorySidebar = document.getElementById('categorySidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+const cartSidebar = document.getElementById('cartSidebar');
+const cartOverlay = document.getElementById('cartOverlay');
+const cartCount = document.getElementById('cartCount');
+const cartTotalItems = document.getElementById('cartTotalItems');
+const cartItems = document.getElementById('cartItems');
+const cartTotal = document.getElementById('cartTotal');
+const checkoutBtn = document.getElementById('checkoutBtn');
+const toast = document.getElementById('toast');
+
+// Init
+document.addEventListener('DOMContentLoaded', async () => {
+  await Promise.all([loadCategories(), loadProducts()]);
+  updateCartUI();
+});
+
+// Load Categories from API
+async function loadCategories() {
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + '?action=getCategories');
+    const data = await res.json();
+    if (data.status === 'success' && data.categories) {
+      renderCategories(data.categories);
+    }
+  } catch (err) {
+    console.error('Failed to load categories:', err);
+  }
+}
+
+// Render Categories in Sidebar
+function renderCategories(categories) {
+  const allBtn = categoryList.querySelector('[data-category="all"]');
+  categoryList.innerHTML = '';
+  categoryList.appendChild(allBtn);
+  
+  categories.forEach(cat => {
+    if (cat === 'الكل') return;
+    const btn = document.createElement('div');
+    btn.className = 'category-item';
+    btn.dataset.category = cat;
+    btn.onclick = () => selectCategory(cat, btn);
+    btn.innerHTML = `
+      <span class="category-icon">🏷️</span>
+      <span class="category-name">${cat}</span>
+      <span class="category-count" id="cat-count-${cat}">0</span>
+    `;
+    categoryList.appendChild(btn);
+  });
+  updateCategoryCounts();
+}
+
+// Update category product counts
+function updateCategoryCounts() {
+  const counts = {};
+  allProducts.forEach(p => {
+    const cat = p.Category || 'عام';
+    counts[cat] = (counts[cat] || 0) + 1;
+  });
+  document.getElementById('cat-count-all').textContent = allProducts.length;
+  Object.entries(counts).forEach(([cat, count]) => {
+    const el = document.getElementById(`cat-count-${cat}`);
+    if (el) el.textContent = count;
+  });
+}
+
+// Select Category
+function selectCategory(cat, btn) {
+  currentCategory = cat;
+  document.querySelectorAll('.category-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  closeSidebar();
+  filterProducts();
+}
+
+// Sidebar Controls
+function openSidebar() {
+  categorySidebar.classList.add('active');
+  sidebarOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  categorySidebar.classList.remove('active');
+  sidebarOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Cart Controls
+function openCart() {
+  cartSidebar.classList.add('active');
+  cartOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  renderCartItems();
+}
+function closeCart() {
+  cartSidebar.classList.remove('active');
+  cartOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Load Products
 async function loadProducts() {
   try {
     const res = await fetch(APPS_SCRIPT_URL + '?action=getProducts');
     const data = await res.json();
     if (data.status === 'success') {
-      const grid = document.getElementById('productsGrid');
-      const products = data.products || [];
-      if(products.length === 0) {
-        grid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:var(--muted);">لا توجد منتجات مضافة حالياً</p>';
-        return;
-      }
-      grid.innerHTML = products.map(p => `
-        <div class="product-card">
-          <div class="product-image">
-            <img src="${p.Image || 'https://via.placeholder.com/300'}" alt="${p.Name}">
-          </div>
-          <div class="product-info">
-            <div class="product-category">${p.Category || 'عام'}</div>
-            <div class="product-name">${p.Name}</div>
-            <div class="product-price">${Number(p.Price || 0).toLocaleString()} EGP</div>
-            <button class="add-cart-btn">إضافة للسلة</button>
-          </div>
-        </div>
-      `).join('');
+      allProducts = data.products || [];
+      filterProducts();
     }
   } catch (err) {
-    document.getElementById('productsGrid').innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#ff4444;">خطأ في الاتصال بقاعدة البيانات</p>';
+    productsGrid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#ff4444;">خطأ في الاتصال بقاعدة البيانات</p>';
   }
 }
 
-loadProducts();
+// Filter Products by Category
+function filterProducts() {
+  let filtered = currentCategory === 'all' 
+    ? allProducts 
+    : allProducts.filter(p => (p.Category || 'عام') === currentCategory);
+  
+  if (filtered.length === 0) {
+    productsGrid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:var(--muted);">لا توجد منتجات في هذا التصنيف</p>';
+    return;
+  }
+  
+  productsGrid.innerHTML = filtered.map(p => `
+    <div class="product-card" data-id="${p.ID}">
+      <div class="product-image">
+        <img src="${p.Image || 'https://via.placeholder.com/300'}" alt="${p.Name}">
+      </div>
+      <div class="product-info">
+        <div class="product-category">${p.Category || 'عام'}</div>
+        <div class="product-name">${p.Name}</div>
+        <div class="product-price">${Number(p.Price || 0).toLocaleString()} EGP</div>
+        <button class="add-cart-btn" onclick="addToCart('${p.ID}', event)" data-id="${p.ID}">إضافة للسلة</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Cart Functions
+function addToCart(productId, e) {
+  const product = allProducts.find(p => p.ID == productId);
+  if (!product) return;
+  
+  const existing = cart.find(item => item.id == productId);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({
+      id: product.ID,
+      name: product.Name,
+      price: Number(product.Price || 0),
+      image: product.Image || 'https://via.placeholder.com/300',
+      qty: 1
+    });
+  }
+  saveCart();
+  updateCartUI();
+  showToast('تم إضافة المنتج للسلة');
+  
+  // Visual feedback on button
+  if (e && e.target) {
+    const btn = e.target;
+    btn.classList.add('added');
+    btn.textContent = 'تم الإضافة ✓';
+    setTimeout(() => {
+      btn.classList.remove('added');
+      btn.textContent = 'إضافة للسلة';
+    }, 1500);
+  }
+}
+
+function removeFromCart(productId) {
+  cart = cart.filter(item => item.id != productId);
+  saveCart();
+  updateCartUI();
+  renderCartItems();
+}
+
+function updateQty(productId, delta) {
+  const item = cart.find(i => i.id == productId);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) {
+    removeFromCart(productId);
+    return;
+  }
+  saveCart();
+  updateCartUI();
+  renderCartItems();
+}
+
+function saveCart() {
+  localStorage.setItem('figurax_cart', JSON.stringify(cart));
+}
+
+function updateCartUI() {
+  const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  
+  cartCount.textContent = totalItems;
+  cartTotalItems.textContent = totalItems;
+  cartTotal.textContent = totalPrice.toLocaleString() + ' EGP';
+  checkoutBtn.disabled = cart.length === 0;
+}
+
+function renderCartItems() {
+  if (cart.length === 0) {
+    cartItems.innerHTML = '<div class="cart-empty">السلة فارغة</div>';
+    return;
+  }
+  cartItems.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">${item.price.toLocaleString()} EGP</div>
+        <div class="cart-item-qty">
+          <button class="qty-btn" onclick="updateQty('${item.id}', -1)">−</button>
+          <span class="qty-value">${item.qty}</span>
+          <button class="qty-btn" onclick="updateQty('${item.id}', 1)">+</button>
+        </div>
+      </div>
+      <button class="cart-item-remove" onclick="removeFromCart('${item.id}')">🗑️</button>
+    </div>
+  `).join('');
+}
+
+// Checkout - Redirect to order form or show modal
+function openCheckout() {
+  if (cart.length === 0) return;
+  // For now, redirect to a simple order form or use prompt
+  // You can create a checkout page or use a modal
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const itemsDesc = cart.map(item => `${item.name} x${item.qty}`).join(', ');
+  
+  // Simple approach: redirect to WhatsApp or show form
+  const message = `طلب جديد من FIGURAX:\n${itemsDesc}\nالإجمالي: ${total.toLocaleString()} EGP`;
+  const whatsappUrl = `https://wa.me/201000000000?text=${encodeURIComponent(message)}`;
+  
+  if (confirm('سيتم تحويلك للواتساب لإكمال الطلب. هل تريد المتابعة؟')) {
+    window.open(whatsappUrl, '_blank');
+  }
+}
+
+function showToast(msg, isError = false) {
+  toast.textContent = msg;
+  toast.classList.toggle('error', isError);
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
 </script>
 </body>
 </html>

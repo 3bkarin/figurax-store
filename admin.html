@@ -218,11 +218,13 @@ th { background: var(--bg); color: var(--primary); text-transform: uppercase; fo
                 <th>الهاتف</th>
                 <th>العنوان</th>
                 <th>الإجمالي</th>
+                <th>الحالة</th>
                 <th>التاريخ</th>
+                <th>الإجراءات</th>
               </tr>
             </thead>
             <tbody id="ordersTable">
-              <tr><td colspan="6" style="text-align:center; color:var(--muted);">لا توجد طلبات</td></tr>
+              <tr><td colspan="8" style="text-align:center; color:var(--muted);">لا توجد طلبات</td></tr>
             </tbody>
           </table>
         </div>
@@ -234,7 +236,7 @@ th { background: var(--bg); color: var(--primary); text-transform: uppercase; fo
 <div class="toast" id="toast"></div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyIhW7xDJ9IV3Tgu9VEJFzxHZR-Uwtac8gei4u88MOUWjewlfgY13lhyYVHh157mQbS3g/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbynfboa2e_4W6uPZhgVGpcY4yuX59gfvTGVRc70klU5KR3fM0SuxdaIBkgv1KNlCcmdhA/exec';
 
 function checkAuth() {
   if (localStorage.getItem('admin_logged_in') === 'true') {
@@ -317,19 +319,29 @@ async function loadOrders() {
       
       const tbody = document.getElementById('ordersTable');
       if(orders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--muted);">لا توجد طلبات</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted);">لا توجد طلبات</td></tr>';
         return;
       }
-      tbody.innerHTML = orders.map(o => `
+      tbody.innerHTML = orders.map(o => {
+        const status = o.Status || o['الحالة'] || 'قيد الانتظار';
+        const isDelivered = status === 'مُسلم' || status === 'تم التسليم' || status === 'Delivered';
+        const statusClass = isDelivered ? 'success' : '';
+        const statusText = isDelivered ? '✓ مُسلم' : status;
+        
+        return `
         <tr>
           <td>${o['Order ID'] || '-'}</td>
-          <td>${o['Customer name'] || '-'}</td>
-          <td>${o.phone || '-'}</td>
-          <td>${o.Address || '-'}</td>
-          <td>${o.Total || '-'}</td>
-          <td>${o.Date || '-'}</td>
+          <td>${o['Customer Name'] || o['اسم العميل'] || '-'}</td>
+          <td>${o['Customer Phone'] || o.phone || '-'}</td>
+          <td>${o.Address || o['العنوان'] || '-'}</td>
+          <td>${o['Total Amount'] || o.Total || o['الإجمالي'] || '-'}</td>
+          <td><span class="action-btn ${statusClass}" style="font-size:11px; padding:4px 8px;">${statusText}</span></td>
+          <td>${o.Date || o['التاريخ'] || '-'}</td>
+          <td>
+            ${!isDelivered ? `<button class="action-btn success" onclick="markDelivered('${o['Order ID'] || o['Order ID']}')">تسليم</button>` : ''}
+          </td>
         </tr>
-      `).join('');
+      `}).join('');
     }
   } catch (err) { console.error(err); }
 }
@@ -399,6 +411,26 @@ function showPanel(name, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
   btn.classList.add('active');
+}
+
+async function markDelivered(orderId) {
+  if(!confirm('تأكيد تسليم الطلب ونقله للمعاملات المالية؟')) return;
+  
+  try {
+    const formData = new FormData();
+    formData.append('action', 'moveOrderToTransactions');
+    formData.append('orderId', orderId);
+    
+    const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData });
+    const data = await res.json();
+    
+    if (data.status === 'success') {
+      showToast('تم تسليم الطلب ونقله للمعاملات');
+      loadOrders();
+    } else {
+      showToast(data.message || 'فشل التسليم', true);
+    }
+  } catch (err) { showToast('خطأ في الاتصال', true); }
 }
 
 function showToast(msg, isError = false) {
