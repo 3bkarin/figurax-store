@@ -196,7 +196,46 @@ body {
 .toast.error { background: var(--danger); }
 .toast.show { opacity: 1; }
 
+/* Checkout Modal */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8); z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden; transition: 0.3s;
+  padding: 20px;
+}
+.modal-overlay.active { opacity: 1; visibility: visible; }
+.modal {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+  transform: scale(0.9); transition: 0.3s;
+}
+.modal-overlay.active .modal { transform: scale(1); }
+.modal-header {
+  padding: 20px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-title { font-size: 18px; font-weight: 700; color: var(--primary); }
+.modal-close { background: none; border: none; color: var(--muted); font-size: 28px; cursor: pointer; line-height: 1; }
+.modal-body { padding: 20px; }
+.modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.form-group input, .form-group textarea {
+  width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; font-size: 14px;
+}
+.form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); }
+.order-summary { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 16px 0; }
+.summary-row { display: flex; justify-content: space-between; margin: 8px 0; font-size: 14px; }
+.summary-row.total { font-weight: 900; font-size: 16px; color: var(--primary); border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.modal-footer { padding: 20px; border-top: 1px solid var(--border); display: flex; gap: 12px; }
+.modal-btn { flex: 1; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; border: none; }
+.modal-btn.primary { background: var(--primary); color: white; }
+.modal-btn.secondary { background: var(--border); color: var(--text); }
+.modal-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
 @media (max-width: 768px) {
+  .modal-row { grid-template-columns: 1fr; }
   .menu-btn { display: block; }
   .nav-links a:not(.cart-btn) { display: none; }
   .sort-bar { display: none; }
@@ -288,6 +327,7 @@ body {
 
 <script>
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-i5qoojQ3L1viy9KNvF55ELE31MPEirpp8v3BGqz-dtMqROsOY3b0InlArhdTziT0hg/exec';
+const STORE_WHATSAPP = '201119668221'; // غيّر رقم الواتساب هنا
 
 // State
 let allProducts = [];
@@ -526,20 +566,84 @@ function renderCartItems() {
   `).join('');
 }
 
-// Checkout - Redirect to order form or show modal
+// Checkout Modal
 function openCheckout() {
   if (cart.length === 0) return;
-  // For now, redirect to a simple order form or use prompt
-  // You can create a checkout page or use a modal
+  closeCart();
+  
+  // Populate order summary
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const itemsDesc = cart.map(item => `${item.name} x${item.qty}`).join(', ');
+  document.getElementById('orderSummaryItems').innerHTML = cart.map(item => `
+    <div class="summary-row">
+      <span>${item.name} x${item.qty}</span>
+      <span>${(item.price * item.qty).toLocaleString()} EGP</span>
+    </div>
+  `).join('');
+  document.getElementById('orderSummaryTotal').textContent = total.toLocaleString() + ' EGP';
   
-  // Simple approach: redirect to WhatsApp or show form
-  const message = `طلب جديد من FIGURAX:\n${itemsDesc}\nالإجمالي: ${total.toLocaleString()} EGP`;
-  const whatsappUrl = `https://wa.me/201119668221?text=${encodeURIComponent(message)}`;
-  
-  if (confirm('سيتم تحويلك للواتساب لإكمال الطلب. هل تريد المتابعة؟')) {
-    window.open(whatsappUrl, '_blank');
+  document.getElementById('checkoutModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCheckoutModal() {
+  document.getElementById('checkoutModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+async function submitOrder(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = 'جاري الإرسال...';
+
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const items = cart.map(item => ({
+    id: item.id,
+    name: item.name,
+    price: item.price,
+    qty: item.qty
+  }));
+
+  const orderData = {
+    action: 'saveOrder',
+    data: {
+      customerName: document.getElementById('customerName').value,
+      customerPhone: document.getElementById('customerPhone').value,
+      customerAddress: document.getElementById('customerAddress').value,
+      customerNotes: document.getElementById('customerNotes').value,
+      items: items,
+      totalAmount: total
+    }
+  };
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    });
+    const data = await res.json();
+    
+    if (data.status === 'success') {
+      showToast('تم إرسال طلبك بنجاح! رقم الطلب: ' + data.orderId);
+      cart = [];
+      saveCart();
+      updateCartUI();
+      closeCheckoutModal();
+      document.getElementById('checkoutForm').reset();
+      
+      // Also send to WhatsApp
+      const message = `طلب جديد من FIGURAX:\n${items.map(i => `${i.name} x${i.qty}`).join(', ')}\nالإجمالي: ${total.toLocaleString()} EGP\nالعميل: ${orderData.data.customerName}\nالهاتف: ${orderData.data.customerPhone}\nالعنوان: ${orderData.data.customerAddress}`;
+      const whatsappUrl = `https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(message)}`;
+      setTimeout(() => window.open(whatsappUrl, '_blank'), 1000);
+    } else {
+      showToast(data.message || 'فشل في إرسال الطلب', true);
+    }
+  } catch (err) {
+    showToast('خطأ في الاتصال بالسيرفر', true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'إرسال الطلب وتأكيد الواتساب';
   }
 }
 
@@ -550,5 +654,51 @@ function showToast(msg, isError = false) {
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
 </script>
+
+<!-- Checkout Modal -->
+<div class="modal-overlay" id="checkoutModal" onclick="event.target===this && closeCheckoutModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">إتمام الطلب</span>
+      <button class="modal-close" onclick="closeCheckoutModal()">&times;</button>
+    </div>
+    <form id="checkoutForm" onsubmit="submitOrder(event)">
+      <div class="modal-body">
+        <div class="modal-row">
+          <div class="form-group">
+            <label>الاسم بالكامل *</label>
+            <input type="text" id="customerName" required placeholder="محمد أحمد">
+          </div>
+          <div class="form-group">
+            <label>رقم الهاتف *</label>
+            <input type="tel" id="customerPhone" required placeholder="01012345678" pattern="[0-9]{10,11}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>العنوان بالتفصيل *</label>
+          <textarea id="customerAddress" required rows="3" placeholder="العنوان الكامل: الشارع، المنطقة، المدينة، المحافظة"></textarea>
+        </div>
+        <div class="form-group">
+          <label>ملاحظات (اختياري)</label>
+          <textarea id="customerNotes" rows="2" placeholder="أي ملاحظات إضافية للطلب..."></textarea>
+        </div>
+        
+        <div class="order-summary">
+          <div style="font-weight:700; margin-bottom:12px; color:var(--primary);">ملخص الطلب</div>
+          <div id="orderSummaryItems"></div>
+          <div class="summary-row total">
+            <span>الإجمالي</span>
+            <span id="orderSummaryTotal">0 EGP</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="modal-btn secondary" onclick="closeCheckoutModal()">إلغاء</button>
+        <button type="submit" class="modal-btn primary">إرسال الطلب وتأكيد الواتساب</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 </body>
 </html>
