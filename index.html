@@ -326,7 +326,7 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXFxoWnTW2WbotTaKXELqvUJ1IpX9ss6V9CHwhtpwhuR25HEmrGrE7jxA0kK1PM_QZjA/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxkq-9XiAqfVCsrwXY7emKh0mhk8Pz2uQfGGFsdUwz0xBthyEixfoVb47pOmavwmp_vHw/exec';
 const STORE_WHATSAPP = '201119668221'; // غيّر رقم الواتساب هنا
 
 // State
@@ -622,7 +622,13 @@ async function submitOrder(e) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderData)
     });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    
     const data = await res.json();
+    console.log('Order response:', data); // Debug log
     
     if (data.status === 'success') {
       showToast('تم إرسال طلبك بنجاح! رقم الطلب: ' + data.orderId);
@@ -640,7 +646,8 @@ async function submitOrder(e) {
       showToast(data.message || 'فشل في إرسال الطلب', true);
     }
   } catch (err) {
-    showToast('خطأ في الاتصال بالسيرفر', true);
+    console.error('Order error:', err); // Debug log
+    showToast('خطأ في الاتصال: ' + err.message, true);
   } finally {
     btn.disabled = false;
     btn.textContent = 'إرسال الطلب وتأكيد الواتساب';
