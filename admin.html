@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIGURAX - Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #C41E3A;
+  --bg: #0a0a0a;
+  --card: #111;
+  --border: #2a2a2a;
+  --text: #E8E8E8;
+  --muted: #A0A0A0;
+  --success: #00b894;
+  --danger: #ff4444;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+.login-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+.login-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.login-box h1 {
+  text-align: center;
+  font-size: 26px;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  color: var(--primary);
+  font-weight: 900;
+}
+.login-box p {
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 25px;
+  font-size: 13px;
+}
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.form-group input, .form-group select {
+  width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 6px; font-size: 14px;
+}
+.form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+.login-btn {
+  width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 10px;
+}
+.dashboard { display: none; }
+.dashboard.active { display: block; }
+.topbar {
+  background: rgba(10, 10, 10, 0.95); border-bottom: 1px solid var(--border); padding: 15px 0; position: sticky; top: 0; z-index: 100;
+}
+.container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+.topbar-content { display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 22px; font-weight: 900; color: var(--primary); letter-spacing: 2px; }
+.logout-btn { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 25px 0; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+.stat-label { color: var(--muted); font-size: 11px; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+.stat-value { font-size: 28px; font-weight: 900; color: var(--primary); }
+.tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; flex-wrap: wrap; }
+.tab-btn { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+.tab-btn.active, .tab-btn:hover { background: var(--primary); border-color: var(--primary); }
+.panel { display: none; }
+.panel.active { display: block; }
+.panel-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 25px; margin-bottom: 20px; }
+.panel-card h3 { margin-bottom: 20px; font-size: 18px; }
+.form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+.submit-btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+.table-wrapper { overflow-x: auto; margin-top: 15px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 12px; text-align: right; border-bottom: 1px solid var(--border); }
+th { background: var(--bg); color: var(--primary); text-transform: uppercase; font-size: 11px; }
+.action-btn { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+.action-btn.success { background: var(--success); }
+.toast {
+  position: fixed; bottom: 20px; left: 20px; background: var(--success); color: white; padding: 12px 20px; border-radius: 6px; font-weight: 600; z-index: 1000; opacity: 0; transition: 0.3s;
+}
+.toast.error { background: var(--danger); }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- شاشة تسجيل الدخول -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <h1>FIGURAX</h1>
+    <p>لوحة التحكم الإدارية</p>
+    <form onsubmit="doLogin(event)">
+      <div class="form-group">
+        <label>اسم المستخدم</label>
+        <input type="text" id="loginUser" required>
+      </div>
+      <div class="form-group">
+        <label>كلمة المرور</label>
+        <input type="password" id="loginPass" required>
+      </div>
+      <button type="submit" class="login-btn">دخول</button>
+    </form>
+    <a href="index.html" style="display:block; text-align:center; margin-top:15px; color:var(--muted); font-size:12px; text-decoration:none;">← العودة للمتجر</a>
+  </div>
+</div>
+
+<!-- لوحة التحكم الرئيسية -->
+<div class="dashboard" id="dashboard">
+  <header class="topbar">
+    <div class="container">
+      <div class="topbar-content">
+        <div class="logo">FIGURAX ADMIN</div>
+        <button class="logout-btn" onclick="logout()">خروج</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">إجمالي المنتجات</div>
+        <div class="stat-value" id="statProducts">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">الطلبات الواردة</div>
+        <div class="stat-value" id="statOrders">0</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showPanel('addProduct', this)">➕ إضافة منتج</button>
+      <button class="tab-btn" onclick="showPanel('stock', this)">📦 إدارة المخزون</button>
+      <button class="tab-btn" onclick="showPanel('orders', this)">🛒 الطلبات</button>
+    </div>
+
+    <!-- إضافة منتج -->
+    <div class="panel active" id="panel-addProduct">
+      <div class="panel-card">
+        <h3>إضافة منتج جديد للمتجر</h3>
+        <form onsubmit="addProduct(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>اسم المنتج *</label>
+              <input type="text" id="productName" required>
+            </div>
+            <div class="form-group">
+              <label>القسم *</label>
+              <input type="text" id="productCategory" required placeholder="مثال: Figures">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>السعر (EGP) *</label>
+              <input type="number" id="productPrice" min="0" step="0.01" required>
+            </div>
+            <div class="form-group">
+              <label>الكمية بالمخزن *</label>
+              <input type="number" id="productStock" min="0" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>رابط الصورة (Image URL)</label>
+            <input type="url" id="productImage" placeholder="https://...">
+          </div>
+          <button type="submit" class="submit-btn">حفظ وإضافة المنتج</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- إدارة المخزون -->
+    <div class="panel" id="panel-stock">
+      <div class="panel-card">
+        <h3>مخزون المنتجات</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>المعرف</th>
+                <th>الاسم</th>
+                <th>السعر</th>
+                <th>المخزن</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="stockTable">
+              <tr><td colspan="5" style="text-align:center; color:var(--muted);">جاري التحميل...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- الطلبات -->
+    <div class="panel" id="panel-orders">
+      <div class="panel-card">
+        <h3>طلبات العملاء</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>رقم الطلب</th>
+                <th>العميل</th>
+                <th>الهاتف</th>
+                <th>العنوان</th>
+                <th>الإجمالي</th>
+                <th>التاريخ</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTable">
+              <tr><td colspan="6" style="text-align:center; color:var(--muted);">لا توجد طلبات</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMJE_Hxbd4yCs6fNBkzK6dBC_hcH6tNCqtEs5lxoqgoqFggk_dlnXe9cmMIm6dv-_C6A/exec';
+
+function checkAuth() {
+  if (localStorage.getItem('admin_logged_in') === 'true') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').classList.add('active');
+    loadAllData();
+  }
+}
+
+async function doLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('loginUser').value;
+  const password = document.getElementById('loginPass').value;
+  
+  try {
+    const formData = new FormData();
+    formData.append('action', 'adminLogin');
+    formData.append('username', username);
+    formData.append('password', password);
+    
+    const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData });
+    const data = await res.json();
+    
+    if (data.status === 'success') {
+      localStorage.setItem('admin_logged_in', 'true');
+      checkAuth();
+    } else {
+      showToast('بيانات الدخول غير صحيحة', true);
+    }
+  } catch (err) {
+    showToast('خطأ في الاتصال بالسيرفر', true);
+  }
+}
+
+function logout() {
+  localStorage.removeItem('admin_logged_in');
+  location.reload();
+}
+
+async function loadAllData() {
+  await Promise.all([loadProducts(), loadOrders()]);
+}
+
+async function loadProducts() {
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + '?action=getProducts');
+    const data = await res.json();
+    if (data.status === 'success') {
+      const products = data.products || [];
+      document.getElementById('statProducts').textContent = products.length;
+      
+      const tbody = document.getElementById('stockTable');
+      if(products.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--muted);">لا توجد منتجات</td></tr>';
+        return;
+      }
+      tbody.innerHTML = products.map(p => `
+        <tr>
+          <td>${p.ID || '-'}</td>
+          <td>${p.Name || '-'}</td>
+          <td>${Number(p.Price || 0).toLocaleString()} EGP</td>
+          <td><input type="number" value="${p.Stock || 0}" id="stock-${p.ID}" style="width:70px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:4px; border-radius:4px;"></td>
+          <td>
+            <button class="action-btn success" onclick="updateStock('${p.ID}')">تحديث</button>
+            <button class="action-btn" onclick="deleteProduct('${p.ID}')">حذف</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  } catch (err) { console.error(err); }
+}
+
+async function loadOrders() {
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + '?action=getOrders');
+    const data = await res.json();
+    if (data.status === 'success') {
+      const orders = data.orders || [];
+      document.getElementById('statOrders').textContent = orders.length;
+      
+      const tbody = document.getElementById('ordersTable');
+      if(orders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--muted);">لا توجد طلبات</td></tr>';
+        return;
+      }
+      tbody.innerHTML = orders.map(o => `
+        <tr>
+          <td>${o['Order ID'] || '-'}</td>
+          <td>${o['Customer name'] || '-'}</td>
+          <td>${o.phone || '-'}</td>
+          <td>${o.Address || '-'}</td>
+          <td>${o.Total || '-'}</td>
+          <td>${o.Date || '-'}</td>
+        </tr>
+      `).join('');
+    }
+  } catch (err) { console.error(err); }
+}
+
+async function addProduct(e) {
+  e.preventDefault();
+  const formData = new FormData();
+  formData.append('action', 'addProduct');
+  formData.append('productName', document.getElementById('productName').value);
+  formData.append('category', document.getElementById('productCategory').value);
+  formData.append('price', document.getElementById('productPrice').value);
+  formData.append('stockQuantity', document.getElementById('productStock').value);
+  formData.append('productImage', document.getElementById('productImage').value || 'https://via.placeholder.com/300');
+  
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showToast('تم إضافة المنتج بنجاح');
+      e.target.reset();
+      loadAllData();
+    } else {
+      showToast(data.message || 'فشل الإضافة', true);
+    }
+  } catch (err) { showToast('خطأ في الاتصال', true); }
+}
+
+async function updateStock(id) {
+  const newStock = document.getElementById('stock-' + id).value;
+  const formData = new FormData();
+  formData.append('action', 'updateStock');
+  formData.append('productId', id);
+  formData.append('stockQuantity', newStock);
+  
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showToast('تم تحديث المخزون');
+      loadProducts();
+    } else {
+      showToast('فشل التحديث', true);
+    }
+  } catch (err) { showToast('خطأ في الاتصال', true); }
+}
+
+async function deleteProduct(id) {
+  if(!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+  const formData = new FormData();
+  formData.append('action', 'deleteProduct');
+  formData.append('productId', id);
+  
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showToast('تم الحذف بنجاح');
+      loadProducts();
+    } else {
+      showToast('فشل الحذف', true);
+    }
+  } catch (err) { showToast('خطأ في الاتصال', true); }
+}
+
+function showPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function showToast(msg, isError = false) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.toggle('error', isError);
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+checkAuth();
+</script>
+</body>
+</html>

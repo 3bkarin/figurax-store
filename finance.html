@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIGURAX - Financial Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #C41E3A;
+  --bg: #0a0a0a;
+  --card: #111;
+  --border: #2a2a2a;
+  --text: #E8E8E8;
+  --muted: #A0A0A0;
+  --success: #00b894;
+  --danger: #ff4444;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+.topbar {
+  background: rgba(10, 10, 10, 0.95);
+  border-bottom: 1px solid var(--border);
+  padding: 15px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+.topbar-content { display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 22px; font-weight: 900; color: var(--primary); letter-spacing: 2px; }
+.nav-back { color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 600; }
+.nav-back:hover { color: var(--primary); }
+
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; padding: 25px 0; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+.stat-label { color: var(--muted); font-size: 11px; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+.stat-value { font-size: 28px; font-weight: 900; color: var(--primary); }
+.stat-value.success { color: var(--success); }
+.stat-value.danger { color: var(--danger); }
+
+.panel-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 25px; margin-bottom: 25px; }
+.panel-card h3 { margin-bottom: 20px; font-size: 18px; color: var(--text); }
+.form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 6px; font-size: 14px;
+}
+.form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+.submit-btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+.submit-btn:hover { background: #a01830; }
+
+.table-wrapper { overflow-x: auto; margin-top: 15px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 12px; text-align: right; border-bottom: 1px solid var(--border); }
+th { background: var(--bg); color: var(--primary); text-transform: uppercase; font-size: 11px; }
+
+.toast {
+  position: fixed; bottom: 20px; left: 20px; background: var(--success); color: white; padding: 12px 20px; border-radius: 6px; font-weight: 600; z-index: 1000; opacity: 0; transition: 0.3s;
+}
+.toast.error { background: var(--danger); }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="container">
+    <div class="topbar-content">
+      <div class="logo">FIGURAX <span>FINANCE</span></div>
+      <a href="admin.html" class="nav-back">← العودة للوحة التحكم</a>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">إجمالي الإيرادات</div>
+      <div class="stat-value success" id="totalRevenue">0 EGP</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">إجمالي المصروفات</div>
+      <div class="stat-value danger" id="totalExpenses">0 EGP</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">صافي الربح</div>
+      <div class="stat-value" id="netProfit">0 EGP</div>
+    </div>
+  </div>
+
+  <!-- إضافة معاملة مالية / مصروف -->
+  <div class="panel-card">
+    <h3>تسجيل مصروف أو حركة مالية جديدة</h3>
+    <form onsubmit="addFinancialRecord(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label>نوع المعاملة *</label>
+          <select id="transType" required>
+            <option value="Expense">مصروف (خارج)</option>
+            <option value="Revenue">إيراد إضافي (داخل)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>المبلغ (EGP) *</label>
+          <input type="number" id="transAmount" min="0" step="0.01" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>البيان / الوصف *</label>
+        <input type="text" id="transDescription" required placeholder="مثال: شراء خامات طباعة 3D / خيوط PLA">
+      </div>
+      <button type="submit" class="submit-btn">حفظ المعاملة</button>
+    </form>
+  </div>
+
+  <!-- سجل المعاملات المالية -->
+  <div class="panel-card">
+    <h3>سجل الحركات المالية</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>التاريخ</th>
+            <th>النوع</th>
+            <th>البيان</th>
+            <th>المبلغ</th>
+          </tr>
+        </thead>
+        <tbody id="financeTable">
+          <tr><td colspan="4" style="text-align:center; color:var(--muted);">جاري التحميل...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMJE_Hxbd4yCs6fNBkzK6dBC_hcH6tNCqtEs5lxoqgoqFggk_dlnXe9cmMIm6dv-_C6A/exec';
+
+async function loadFinancials() {
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + '?action=getFinancials');
+    const data = await res.json();
+    if (data.status === 'success') {
+      const records = data.records || [];
+      let rev = 0, exp = 0;
+      
+      const tbody = document.getElementById('financeTable');
+      if(records.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--muted);">لا توجد حركات مالية مسجلة</td></tr>';
+      } else {
+        tbody.innerHTML = records.map(r => {
+          const amount = Number(r.Amount || 0);
+          if(r.Type === 'Revenue') rev += amount;
+          else exp += amount;
+          
+          return `
+            <tr>
+              <td>${r.Date || '-'}</td>
+              <td><span style="color:${r.Type === 'Revenue' ? 'var(--success)' : 'var(--danger)'}; font-weight:700;">${r.Type === 'Revenue' ? 'إيراد' : 'مصروف'}</span></td>
+              <td>${r.Description || '-'}</td>
+              <td>${amount.toLocaleString()} EGP</td>
+            </tr>
+          `;
+        }).join('');
+      }
+      
+      document.getElementById('totalRevenue').textContent = rev.toLocaleString() + ' EGP';
+      document.getElementById('totalExpenses').textContent = exp.toLocaleString() + ' EGP';
+      const net = rev - exp;
+      const netEl = document.getElementById('netProfit');
+      netEl.textContent = net.toLocaleString() + ' EGP';
+      netEl.className = 'stat-value ' + (net >= 0 ? 'success' : 'danger');
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function addFinancialRecord(e) {
+  e.preventDefault();
+  const formData = new FormData();
+  formData.append('action', 'addFinancialRecord');
+  formData.append('type', document.getElementById('transType').value);
+  formData.append('amount', document.getElementById('transAmount').value);
+  formData.append('description', document.getElementById('transDescription').value);
+  
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showToast('تم تسجيل المعاملة بنجاح');
+      e.target.reset();
+      loadFinancials();
+    } else {
+      showToast(data.message || 'فشل التسجيل', true);
+    }
+  } catch (err) {
+    showToast('خطأ في الاتصال بالسيرفر', true);
+  }
+}
+
+function showToast(msg, isError = false) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.toggle('error', isError);
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+loadFinancials();
+</script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIGURAX - Premium Collectibles</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #C41E3A;
+  --bg: #0a0a0a;
+  --card: #111;
+  --border: #2a2a2a;
+  --text: #E8E8E8;
+  --muted: #A0A0A0;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.header {
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  padding: 15px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+.container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+.nav { display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 26px; font-weight: 900; letter-spacing: 3px; color: var(--primary); cursor: pointer; }
+.nav-links { display: flex; gap: 25px; align-items: center; }
+.nav-links a { color: var(--text); text-decoration: none; font-size: 14px; font-weight: 600; cursor: pointer; text-transform: uppercase; }
+.nav-links a:hover, .nav-links a.active { color: var(--primary); }
+.cart-btn {
+  background: var(--primary); color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;
+}
+.cart-count { background: white; color: var(--primary); border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+.hero { padding: 80px 0; text-align: center; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); border-bottom: 1px solid var(--border); }
+.hero h1 { font-size: 42px; font-weight: 900; margin-bottom: 10px; }
+.hero h1 span { color: var(--primary); }
+.hero p { color: var(--muted); font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+.products-section { padding: 50px 0; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
+.section-title { font-size: 24px; font-weight: 700; }
+.section-title span { color: var(--primary); }
+.sort-bar { display: flex; gap: 10px; }
+.sort-btn { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+.sort-btn.active, .sort-btn:hover { background: var(--primary); border-color: var(--primary); }
+.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+.product-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: 0.3s; }
+.product-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+.product-image { width: 100%; height: 250px; background: #111; overflow: hidden; }
+.product-image img { width: 100%; height: 100%; object-fit: cover; }
+.product-info { padding: 20px; }
+.product-category { color: var(--primary); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+.product-name { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.product-price { font-size: 18px; font-weight: 900; color: var(--primary); margin-bottom: 10px; }
+.add-cart-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 700; }
+.footer { text-align: center; padding: 30px 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="container">
+    <nav class="nav">
+      <div class="logo" onclick="location.reload()">FIGURAX</div>
+      <div class="nav-links" id="navLinks">
+        <a onclick="filterCategory('all')" class="active" id="cat-all">الكل</a>
+        <button class="cart-btn" onclick="alert('السلة قيد التفعيل')">
+           السلة <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <h1>FIGURAX <span>Store</span></h1>
+    <p>متجر المجسمات والتحف الفنية</p>
+  </div>
+</section>
+
+<section class="products-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">أحدث <span>المنتجات</span></h2>
+      <div class="sort-bar">
+        <button class="sort-btn active">الكل</button>
+      </div>
+    </div>
+    <div id="productsGrid" class="products-grid">
+      <p style="text-align:center; grid-column:1/-1; color:var(--muted);">جاري تحميل المنتجات...</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <p>© 2026 FIGURAX Store. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMJE_Hxbd4yCs6fNBkzK6dBC_hcH6tNCqtEs5lxoqgoqFggk_dlnXe9cmMIm6dv-_C6A/exec';
+
+async function loadProducts() {
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + '?action=getProducts');
+    const data = await res.json();
+    if (data.status === 'success') {
+      const grid = document.getElementById('productsGrid');
+      const products = data.products || [];
+      if(products.length === 0) {
+        grid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:var(--muted);">لا توجد منتجات مضافة حالياً</p>';
+        return;
+      }
+      grid.innerHTML = products.map(p => `
+        <div class="product-card">
+          <div class="product-image">
+            <img src="${p.Image || 'https://via.placeholder.com/300'}" alt="${p.Name}">
+          </div>
+          <div class="product-info">
+            <div class="product-category">${p.Category || 'عام'}</div>
+            <div class="product-name">${p.Name}</div>
+            <div class="product-price">${Number(p.Price || 0).toLocaleString()} EGP</div>
+            <button class="add-cart-btn">إضافة للسلة</button>
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch (err) {
+    document.getElementById('productsGrid').innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#ff4444;">خطأ في الاتصال بقاعدة البيانات</p>';
+  }
+}
+
+loadProducts();
+</script>
+</body>
+</html>
