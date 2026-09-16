@@ -1,1124 +1,198 @@
 <!DOCTYPE html>
-
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>FIGURAX - Financial Management</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
-
-<style>
-  @font-face {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 400 900;
-    font-display: swap;
-    src: url(https://fonts.gstatic.com/s/inter/v19/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-  }
-
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
-  :root {
-    --primary: #C41E3A;
-    --bg: #0a0a0a;
-    --card: #111;
-    --border: #2a2a2a;
-    --text: #E8E8E8;
-    --muted: #A0A0A0;
-    --success: #00b894;
-    --danger: #ff4444;
-  }
-
-  body {
-    font-family: 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
-
-  .topbar {
-    background: rgba(10, 10, 10, 0.95);
-    border-bottom: 1px solid var(--border);
-    padding: 15px 0;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-
-  .topbar-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .logo {
-    font-size: 22px;
-    font-weight: 900;
-    color: var(--primary);
-    letter-spacing: 2px;
-  }
-
-  .logo span {
-    color: var(--text);
-  }
-
-  .nav-back {
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  .nav-back:hover {
-    color: var(--primary);
-  }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 15px;
-    padding: 25px 0;
-  }
-
-  .stat-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px;
-  }
-
-  .stat-label {
-    color: var(--muted);
-    font-size: 11px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    font-weight: 700;
-  }
-
-  .stat-value {
-    font-size: 28px;
-    font-weight: 900;
-    color: var(--primary);
-  }
-
-  .stat-value.success {
-    color: var(--success);
-  }
-
-  .stat-value.danger {
-    color: var(--danger);
-  }
-
-  .panel-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 25px;
-    margin-bottom: 25px;
-  }
-
-  .panel-card h3 {
-    margin-bottom: 20px;
-    font-size: 18px;
-    color: var(--text);
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 15px;
-  }
-
-  .form-group {
-    margin-bottom: 15px;
-  }
-
-  .form-group label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--muted);
-  }
-
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 12px;
-    border-radius: 6px;
-    font-size: 14px;
-  }
-
-  .form-group input:focus,
-  .form-group select:focus,
-  .form-group textarea:focus {
-    outline: none;
-    border-color: var(--primary);
-  }
-
-  .submit-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 6px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-
-  .submit-btn:hover {
-    background: #a01830;
-  }
-
-  .submit-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .table-wrapper {
-    overflow-x: auto;
-    margin-top: 15px;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-
-  th,
-  td {
-    padding: 12px;
-    text-align: right;
-    border-bottom: 1px solid var(--border);
-  }
-
-  th {
-    background: var(--bg);
-    color: var(--primary);
-    text-transform: uppercase;
-    font-size: 11px;
-  }
-
-  tr:hover td {
-    background: rgba(255,255,255,0.02);
-  }
-
-  .toast {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    background: var(--success);
-    color: white;
-    padding: 12px 20px;
-    border-radius: 6px;
-    font-weight: 600;
-    z-index: 1000;
-    opacity: 0;
-    pointer-events: none;
-    transition: 0.3s;
-  }
-
-  .toast.error {
-    background: var(--danger);
-  }
-
-  .toast.show {
-    opacity: 1;
-  }
-
-  .filter-row {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    align-items: flex-end;
-  }
-
-  .filter-row .form-group {
-    margin: 0;
-    flex: 1;
-    min-width: 180px;
-  }
-
-  @media (max-width: 600px) {
-    .container {
-      padding: 0 12px;
-    }
-
-    .panel-card {
-      padding: 18px;
-    }
-
-    .stats-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .topbar-content {
-      gap: 15px;
-    }
-
-    .logo {
-      font-size: 18px;
-    }
-  }
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIGURAX - Financial Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #059669; --bg: #f8fafc; --text: #0f172a; --card: #ffffff; --danger: #ef4444; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 20px; }
+        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .login-box { background: var(--card); padding: 2rem; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .login-box input, .login-box select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 16px; }
+        .login-box button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: 600; }
+        .hidden { display: none !important; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; background: var(--card); padding: 1rem; border-radius: 8px; }
+        .btn { padding: 8px 16px; background: var(--primary); color: white; text-decoration: none; border-radius: 6px; border: none; cursor: pointer; }
+        .btn-back { background: #64748b; margin-left: 10px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--card); padding: 1.5rem; border-radius: 8px; text-align: center; }
+        .form-section { background: var(--card); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: right; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f1f5f9; font-weight: 600; }
+    </style>
 </head>
-
 <body>
 
-<header class="topbar">
-  <div class="container">
-    <div class="topbar-content">
-      <div class="logo">
-        FIGURAX <span>FINANCE</span>
-      </div>
-
-```
-  <a href="admin.html" class="nav-back">
-    ← العودة للوحة التحكم
-  </a>
-</div>
-```
-
-  </div>
-</header>
-
-<div class="container">
-
-  <!-- الإحصائيات -->
-
-  <div class="stats-grid">
-
-```
-<div class="stat-card">
-  <div class="stat-label">إجمالي الإيرادات</div>
-  <div class="stat-value success" id="totalRevenue">
-    0 EGP
-  </div>
-</div>
-
-<div class="stat-card">
-  <div class="stat-label">إجمالي المصروفات</div>
-  <div class="stat-value danger" id="totalExpenses">
-    0 EGP
-  </div>
-</div>
-
-<div class="stat-card">
-  <div class="stat-label">صافي الربح</div>
-  <div class="stat-value" id="netProfit">
-    0 EGP
-  </div>
-</div>
-```
-
-  </div>
-
-  <!-- إضافة معاملة مالية -->
-
-  <div class="panel-card">
-
-```
-<h3>تسجيل معاملة مالية (إيراد / مصروف)</h3>
-
-<form onsubmit="addFinancialRecord(event)">
-
-  <div class="form-row">
-
-    <div class="form-group">
-      <label for="transType">نوع المعاملة *</label>
-
-      <select id="transType" required>
-        <option value="Revenue">إيراد (داخلي)</option>
-        <option value="Expense">مصروف (خارجي)</option>
-      </select>
+    <!-- شاشة تسجيل الدخول -->
+    <div id="login-screen" class="login-overlay">
+        <div class="login-box">
+            <h2 style="margin-bottom: 1rem;">FIGURAX FINANCE</h2>
+            <p style="margin-bottom: 1.5rem; color: #64748b;">تسجيل الدخول للإدارة المالية</p>
+            <input type="password" id="finance-password" placeholder="كلمة المرور">
+            <button onclick="login()">دخول</button>
+            <a href="admin.html" style="display: block; margin-top: 1rem; color: #64748b; text-decoration: none;">← العودة للوحة التحكم</a>
+        </div>
     </div>
 
-    <div class="form-group">
-      <label for="transCategory">الفئة</label>
+    <!-- لوحة المالية -->
+    <div id="finance-dashboard" class="hidden">
+        <header>
+            <h2>FIGURAX FINANCE</h2>
+            <div>
+                <a href="admin.html" class="btn btn-back">← العودة للوحة التحكم</a>
+                <button onclick="logout()" class="btn" style="background: var(--danger);">خروج</button>
+            </div>
+        </header>
 
-      <select id="transCategory">
-        <option value="">-- اختر الفئة --</option>
-        <option value="Operations">عمليات</option>
-        <option value="Marketing">تسويق</option>
-        <option value="Salaries">رواتب</option>
-        <option value="Rent">إيجار</option>
-        <option value="Supplies">مستلزمات</option>
-        <option value="Other">أخرى</option>
-      </select>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>إجمالي الإيرادات</h3>
+                <p id="total-income" style="font-size: 2rem; font-weight: bold; color: var(--primary);">0 EGP</p>
+            </div>
+            <div class="stat-card">
+                <h3>إجمالي المصروفات</h3>
+                <p id="total-expense" style="font-size: 2rem; font-weight: bold; color: var(--danger);">0 EGP</p>
+            </div>
+            <div class="stat-card">
+                <h3>صافي الربح</h3>
+                <p id="net-profit" style="font-size: 2rem; font-weight: bold; color: #0f172a;">0 EGP</p>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 style="margin-bottom: 1rem;">تسجيل معاملة مالية</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>نوع المعاملة *</label>
+                    <select id="trans-type"><option value="income">إيراد (داخلي)</option><option value="expense">مصروف (خارجي)</option></select>
+                </div>
+                <div class="form-group">
+                    <label>الفئة</label>
+                    <select id="trans-category">
+                        <option value="operations">عمليات تسويق</option>
+                        <option value="salaries">رواتب</option>
+                        <option value="rent">إيجار</option>
+                        <option value="supplies">مستلزمات</option>
+                        <option value="other">أخرى</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>المبلغ (EGP) *</label><input type="number" id="trans-amount"></div>
+                <div class="form-group"><label>التاريخ</label><input type="date" id="trans-date"></div>
+                <div class="form-group" style="grid-column: 1 / -1;"><label>الوصف *</label><input type="text" id="trans-desc"></div>
+            </div>
+            <button onclick="addTransaction()" class="btn" style="margin-top: 1rem; width: 100%;">حفظ المعاملة</button>
+        </div>
+
+        <div class="form-section">
+            <h3 style="margin-bottom: 1rem;">سجل الحركات المالية</h3>
+            <table id="finance-table">
+                <thead><tr><th>التاريخ</th><th>النوع</th><th>الفئة</th><th>الوصف</th><th>المبلغ</th><th>الحالة</th></tr></thead>
+                <tbody><tr><td colspan="6" style="text-align: center;">جاري التحميل...</td></tr></tbody>
+            </table>
+        </div>
     </div>
 
-  </div>
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXDGLMtulxN23kDkNqDPPX7JYaJtOL4A15tN_u1apnjhe4jJvhlkDgvFas943gj9jy0w/exec';
+        const FINANCE_PASS = '123456'; // يمكنك تغييرها لتختلف عن الأدمن إذا أردت
 
-  <div class="form-row">
+        async function api(action, method = 'GET', body = null) {
+            const url = `${SCRIPT_URL}?action=${action}`;
+            const options = {
+                method: method,
+                redirect: 'follow', // حل مشكلة CORS
+                headers: method === 'POST' ? { 'Content-Type': 'text/plain;charset=utf-8' } : {}
+            };
+            if (body) options.body = JSON.stringify(body);
 
-    <div class="form-group">
-      <label for="transAmount">المبلغ (EGP) *</label>
-
-      <input
-        type="number"
-        id="transAmount"
-        min="0"
-        step="0.01"
-        required
-      >
-    </div>
-
-    <div class="form-group">
-      <label for="transDate">التاريخ</label>
-
-      <input
-        type="date"
-        id="transDate"
-      >
-    </div>
-
-  </div>
-
-  <div class="form-group">
-    <label for="transDescription">الوصف *</label>
-
-    <input
-      type="text"
-      id="transDescription"
-      required
-      placeholder="مثال: شراء خامات طباعة 3D / خيوط PLA"
-    >
-  </div>
-
-  <button type="submit" class="submit-btn" id="saveFinancialBtn">
-    حفظ المعاملة
-  </button>
-
-</form>
-```
-
-  </div>
-
-  <!-- سجل المعاملات المالية -->
-
-  <div class="panel-card">
-
-```
-<h3>سجل الحركات المالية</h3>
-
-<div class="filter-row">
-
-  <div class="form-group">
-    <label for="filterStartDate">من تاريخ</label>
-
-    <input
-      type="date"
-      id="filterStartDate"
-    >
-  </div>
-
-  <div class="form-group">
-    <label for="filterEndDate">إلى تاريخ</label>
-
-    <input
-      type="date"
-      id="filterEndDate"
-    >
-  </div>
-
-  <div class="form-group">
-    <label for="filterType">النوع</label>
-
-    <select id="filterType">
-      <option value="">الكل</option>
-      <option value="Revenue">إيرادات</option>
-      <option value="Expense">مصروفات</option>
-    </select>
-  </div>
-
-  <button
-    class="submit-btn"
-    onclick="loadFinancials()"
-  >
-    تصفية
-  </button>
-
-</div>
-
-<div class="table-wrapper">
-
-  <table>
-
-    <thead>
-      <tr>
-        <th>التاريخ</th>
-        <th>النوع</th>
-        <th>الفئة</th>
-        <th>الوصف</th>
-        <th>المبلغ</th>
-        <th>المرجع</th>
-        <th>الحالة</th>
-      </tr>
-    </thead>
-
-    <tbody id="financeTable">
-
-      <tr>
-        <td
-          colspan="7"
-          style="text-align:center; color:var(--muted);"
-        >
-          جاري التحميل...
-        </td>
-      </tr>
-
-    </tbody>
-
-  </table>
-
-</div>
-```
-
-  </div>
-
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-
-/* =========================================================
-   FIGURAX GOOGLE APPS SCRIPT API
-   ========================================================= */
-
-const APPS_SCRIPT_URL =
-  'https://script.google.com/macros/s/AKfycbyXDGLMtulxN23kDkNqDPPX7JYaJtOL4A15tN_u1apnjhe4jJvhlkDgvFas943gj9jy0w/exec';
-
-
-/* =========================================================
-   API FUNCTION
-   GET  -> Query Parameters
-   POST -> FormData
-   ========================================================= */
-
-async function api(action, payload = {}, method = 'POST') {
-
-  try {
-
-    let res;
-
-    /* =========================
-       GET REQUEST
-       ========================= */
-
-    if (method.toUpperCase() === 'GET') {
-
-      const params = new URLSearchParams();
-
-      params.append('action', action);
-
-      Object.entries(payload).forEach(([key, value]) => {
-
-        if (
-          value !== undefined &&
-          value !== null &&
-          value !== ''
-        ) {
-          params.append(
-            key,
-            typeof value === 'object'
-              ? JSON.stringify(value)
-              : String(value)
-          );
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error(`API Error [${action}]:`, error);
+                throw error;
+            }
         }
 
-      });
-
-      const url =
-        `${APPS_SCRIPT_URL}?${params.toString()}`;
-
-      console.log('GET API:', url);
-
-      res = await fetch(url, {
-        method: 'GET',
-        redirect: 'follow'
-      });
-
-    }
-
-    /* =========================
-       POST REQUEST
-       ========================= */
-
-    else {
-
-      const formData = new FormData();
-
-      formData.append('action', action);
-
-      Object.entries(payload).forEach(([key, value]) => {
-
-        formData.append(
-          key,
-          typeof value === 'object'
-            ? JSON.stringify(value)
-            : value ?? ''
-        );
-
-      });
-
-      console.log('POST API:', action, payload);
-
-      res = await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        body: formData,
-        redirect: 'follow'
-      });
-
-    }
-
-    /* =========================
-       HTTP ERROR
-       ========================= */
-
-    if (!res.ok) {
-      throw new Error(
-        `HTTP Error ${res.status}`
-      );
-    }
-
-    /* =========================
-       JSON RESPONSE
-       ========================= */
-
-    const data = await res.json();
-
-    console.log('API Response:', data);
-
-    if (!data.success) {
-
-      throw new Error(
-        data.data?.error ||
-        data.error ||
-        'Request failed'
-      );
-
-    }
-
-    return data.data;
-
-  } catch (error) {
-
-    console.error(
-      `API Error [${action}]:`,
-      error
-    );
-
-    throw error;
-
-  }
-
-}
-
-
-/* =========================================================
-   LOAD FINANCIAL RECORDS
-   ========================================================= */
-
-async function loadFinancials() {
-
-  const tbody =
-    document.getElementById('financeTable');
-
-  try {
-
-    tbody.innerHTML = `
-      <tr>
-        <td
-          colspan="7"
-          style="text-align:center; color:var(--muted);"
-        >
-          جاري تحميل البيانات...
-        </td>
-      </tr>
-    `;
-
-    const payload = {};
-
-    const startDate =
-      document.getElementById('filterStartDate').value;
-
-    const endDate =
-      document.getElementById('filterEndDate').value;
-
-    const type =
-      document.getElementById('filterType').value;
-
-
-    if (startDate) {
-      payload.startDate = startDate;
-    }
-
-    if (endDate) {
-      payload.endDate = endDate;
-    }
-
-    if (type) {
-      payload.type = type;
-    }
-
-
-    /* GET request */
-
-    const result =
-      await api(
-        'getFinancials',
-        payload,
-        'GET'
-      );
-
-
-    const financials =
-      Array.isArray(result?.financials)
-        ? result.financials
-        : [];
-
-
-    let rev = 0;
-    let exp = 0;
-
-
-    /* =========================
-       EMPTY DATA
-       ========================= */
-
-    if (financials.length === 0) {
-
-      tbody.innerHTML = `
-        <tr>
-          <td
-            colspan="7"
-            style="text-align:center; color:var(--muted);"
-          >
-            لا توجد حركات مالية مسجلة
-          </td>
-        </tr>
-      `;
-
-    }
-
-    /* =========================
-       DATA
-       ========================= */
-
-    else {
-
-      tbody.innerHTML =
-        financials.map(r => {
-
-          const amount =
-            Number(r.amount || 0);
-
-          const isRevenue =
-            String(r.type).toLowerCase() === 'revenue';
-
-
-          if (isRevenue) {
-            rev += amount;
-          } else {
-            exp += amount;
-          }
-
-
-          return `
-            <tr>
-
-              <td>
-                ${escapeHtml(r.date || '-')}
-              </td>
-
-              <td>
-                <span
-                  style="
-                    color:${isRevenue
-                      ? 'var(--success)'
-                      : 'var(--danger)'};
-                    font-weight:700;
-                  "
-                >
-                  ${isRevenue ? 'إيراد' : 'مصروف'}
-                </span>
-              </td>
-
-              <td>
-                ${escapeHtml(r.category || '-')}
-              </td>
-
-              <td>
-                ${escapeHtml(r.description || '-')}
-              </td>
-
-              <td
-                style="
-                  color:${isRevenue
-                    ? 'var(--success)'
-                    : 'var(--danger)'};
-                  font-weight:700;
-                "
-              >
-                ${amount.toLocaleString()} EGP
-              </td>
-
-              <td>
-                ${escapeHtml(r.referenceId || '-')}
-              </td>
-
-              <td>
-                ${escapeHtml(r.status || 'معلق')}
-              </td>
-
-            </tr>
-          `;
-
-        }).join('');
-
-    }
-
-
-    /* =========================
-       UPDATE STATISTICS
-       ========================= */
-
-    document.getElementById(
-      'totalRevenue'
-    ).textContent =
-      rev.toLocaleString() + ' EGP';
-
-
-    document.getElementById(
-      'totalExpenses'
-    ).textContent =
-      exp.toLocaleString() + ' EGP';
-
-
-    const net =
-      rev - exp;
-
-
-    const netEl =
-      document.getElementById('netProfit');
-
-
-    netEl.textContent =
-      net.toLocaleString() + ' EGP';
-
-
-    netEl.className =
-      'stat-value ' +
-      (net >= 0
-        ? 'success'
-        : 'danger');
-
-
-  } catch (err) {
-
-    console.error(
-      'Load Financials Error:',
-      err
-    );
-
-
-    tbody.innerHTML = `
-      <tr>
-        <td
-          colspan="7"
-          style="
-            text-align:center;
-            color:var(--danger);
-            padding:25px;
-          "
-        >
-          فشل تحميل السجلات المالية
-        </td>
-      </tr>
-    `;
-
-
-    showToast(
-      err.message ||
-      'فشل تحميل السجلات المالية',
-      true
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   ADD FINANCIAL RECORD
-   ========================================================= */
-
-async function addFinancialRecord(e) {
-
-  e.preventDefault();
-
-
-  const button =
-    document.getElementById(
-      'saveFinancialBtn'
-    );
-
-
-  try {
-
-    button.disabled = true;
-    button.textContent =
-      'جاري الحفظ...';
-
-
-    const type =
-      document.getElementById(
-        'transType'
-      ).value;
-
-
-    const amount =
-      Number(
-        document.getElementById(
-          'transAmount'
-        ).value
-      );
-
-
-    const category =
-      document.getElementById(
-        'transCategory'
-      ).value;
-
-
-    const description =
-      document.getElementById(
-        'transDescription'
-      ).value.trim();
-
-
-    const date =
-      document.getElementById(
-        'transDate'
-      ).value ||
-      getTodayDate();
-
-
-    if (!amount || amount <= 0) {
-
-      throw new Error(
-        'من فضلك أدخل مبلغ صحيح'
-      );
-
-    }
-
-
-    if (!description) {
-
-      throw new Error(
-        'من فضلك أدخل وصف المعاملة'
-      );
-
-    }
-
-
-    await api(
-      'addFinancial',
-      {
-        type,
-        amount,
-        category,
-        description,
-        date
-      },
-      'POST'
-    );
-
-
-    showToast(
-      'تم تسجيل المعاملة بنجاح'
-    );
-
-
-    e.target.reset();
-
-
-    /* إعادة التاريخ لليوم */
-
-    document.getElementById(
-      'transDate'
-    ).value =
-      getTodayDate();
-
-
-    await loadFinancials();
-
-
-  } catch (err) {
-
-    console.error(
-      'Add Financial Error:',
-      err
-    );
-
-
-    showToast(
-      err.message ||
-      'فشل تسجيل المعاملة',
-      true
-    );
-
-  } finally {
-
-    button.disabled = false;
-
-    button.textContent =
-      'حفظ المعاملة';
-
-  }
-
-}
-
-
-/* =========================================================
-   TODAY DATE
-   ========================================================= */
-
-function getTodayDate() {
-
-  const now =
-    new Date();
-
-  const year =
-    now.getFullYear();
-
-  const month =
-    String(
-      now.getMonth() + 1
-    ).padStart(2, '0');
-
-  const day =
-    String(
-      now.getDate()
-    ).padStart(2, '0');
-
-
-  return `${year}-${month}-${day}`;
-
-}
-
-
-/* =========================================================
-   HTML ESCAPE
-   Prevents broken HTML / unsafe content
-   ========================================================= */
-
-function escapeHtml(value) {
-
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-
-}
-
-
-/* =========================================================
-   TOAST
-   ========================================================= */
-
-function showToast(
-  msg,
-  isError = false
-) {
-
-  const toast =
-    document.getElementById('toast');
-
-
-  toast.textContent =
-    msg;
-
-
-  toast.classList.toggle(
-    'error',
-    isError
-  );
-
-
-  toast.classList.add(
-    'show'
-  );
-
-
-  setTimeout(() => {
-
-    toast.classList.remove(
-      'show'
-    );
-
-  }, 2500);
-
-}
-
-
-/* =========================================================
-   INITIALIZATION
-   ========================================================= */
-
-document.addEventListener(
-  'DOMContentLoaded',
-  () => {
-
-    /* Set today's date */
-
-    const dateInput =
-      document.getElementById(
-        'transDate'
-      );
-
-    if (dateInput) {
-      dateInput.value =
-        getTodayDate();
-    }
-
-
-    /* Load financial data */
-
-    loadFinancials();
-
-  }
-);
-
-</script>
-
+        function checkAuth() {
+            if (localStorage.getItem('figurax_finance_auth') === 'true') {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('finance-dashboard').classList.remove('hidden');
+                loadFinancials();
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('finance-dashboard').classList.add('hidden');
+            }
+        }
+
+        function login() {
+            if (document.getElementById('finance-password').value === FINANCE_PASS) {
+                localStorage.setItem('figurax_finance_auth', 'true');
+                checkAuth();
+            } else {
+                alert('كلمة المرور غير صحيحة');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('figurax_finance_auth');
+            window.location.reload();
+        }
+
+        async function loadFinancials() {
+            try {
+                const data = await api('getFinancials');
+                if (data.success) {
+                    document.getElementById('total-income').innerText = data.summary.income + ' EGP';
+                    document.getElementById('total-expense').innerText = data.summary.expense + ' EGP';
+                    document.getElementById('net-profit').innerText = data.summary.profit + ' EGP';
+                    
+                    const tbody = document.querySelector('#finance-table tbody');
+                    tbody.innerHTML = '';
+                    data.transactions.forEach(t => {
+                        const color = t.type === 'income' ? 'var(--primary)' : 'var(--danger)';
+                        tbody.innerHTML += `<tr>
+                            <td>${t.date}</td>
+                            <td style="color: ${color}; font-weight: bold;">${t.type === 'income' ? 'إيراد' : 'مصروف'}</td>
+                            <td>${t.category}</td>
+                            <td>${t.desc}</td>
+                            <td>${t.amount} EGP</td>
+                            <td>مكتمل</td>
+                        </tr>`;
+                    });
+                }
+            } catch (e) { console.error('Load Financials Error:', e); }
+        }
+
+        async function addTransaction() {
+            const trans = {
+                type: document.getElementById('trans-type').value,
+                category: document.getElementById('trans-category').value,
+                amount: document.getElementById('trans-amount').value,
+                date: document.getElementById('trans-date').value || new Date().toISOString().split('T')[0],
+                desc: document.getElementById('trans-desc').value
+            };
+            if (!trans.amount || !trans.desc) return alert('يرجى ملء المبلغ والوصف');
+
+            await api('addTransaction', 'POST', trans);
+            alert('تم حفظ المعاملة بنجاح');
+            loadFinancials();
+            // Clear form
+            document.getElementById('trans-amount').value = '';
+            document.getElementById('trans-desc').value = '';
+        }
+
+        window.onload = checkAuth;
+    </script>
 </body>
 </html>
