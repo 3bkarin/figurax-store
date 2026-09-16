@@ -66,6 +66,9 @@ th { background: var(--bg); color: var(--primary); text-transform: uppercase; fo
 }
 .toast.error { background: var(--danger); }
 .toast.show { opacity: 1; }
+
+.filter-row { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+.filter-row .form-group { margin: 0; flex: 1; min-width: 180px; }
 </style>
 </head>
 <body>
@@ -95,48 +98,86 @@ th { background: var(--bg); color: var(--primary); text-transform: uppercase; fo
     </div>
   </div>
 
-  <!-- إضافة معاملة مالية / مصروف -->
+  <!-- إضافة معاملة مالية -->
   <div class="panel-card">
-    <h3>تسجيل مصروف أو تمويل (يذهب لـ Fund Sheet)</h3>
+    <h3>تسجيل معاملة مالية (إيراد / مصروف)</h3>
     <form onsubmit="addFinancialRecord(event)">
       <div class="form-row">
         <div class="form-group">
           <label>نوع المعاملة *</label>
           <select id="transType" required>
-            <option value="Expense">مصروف شركة (خارج)</option>
-            <option value="Funding">تمويل / استثمار (داخل)</option>
-            <option value="Capital">رأس مال (داخل)</option>
+            <option value="Revenue">إيراد (داخلي)</option>
+            <option value="Expense">مصروف (خارجي)</option>
           </select>
         </div>
+        <div class="form-group">
+          <label>الفئة</label>
+          <select id="transCategory">
+            <option value="">-- اختر الفئة --</option>
+            <option value="Operations">عمليات</option>
+            <option value="Marketing">تسويق</option>
+            <option value="Salaries">رواتب</option>
+            <option value="Rent">إيجار</option>
+            <option value="Supplies">مستلزمات</option>
+            <option value="Other">أخرى</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
         <div class="form-group">
           <label>المبلغ (EGP) *</label>
           <input type="number" id="transAmount" min="0" step="0.01" required>
         </div>
+        <div class="form-group">
+          <label>التاريخ</label>
+          <input type="date" id="transDate">
+        </div>
       </div>
       <div class="form-group">
-        <label>البيان / الوصف *</label>
+        <label>الوصف *</label>
         <input type="text" id="transDescription" required placeholder="مثال: شراء خامات طباعة 3D / خيوط PLA">
       </div>
-      <button type="submit" class="submit-btn">حفظ في Fund Sheet</button>
+      <button type="submit" class="submit-btn">حفظ المعاملة</button>
     </form>
   </div>
 
   <!-- سجل المعاملات المالية -->
   <div class="panel-card">
-    <h3>سجل الحركات المالية (Fund + الطلبات المسلمة)</h3>
+    <h3>سجل الحركات المالية</h3>
+    <div class="filter-row">
+      <div class="form-group">
+        <label>من تاريخ</label>
+        <input type="date" id="filterStartDate">
+      </div>
+      <div class="form-group">
+        <label>إلى تاريخ</label>
+        <input type="date" id="filterEndDate">
+      </div>
+      <div class="form-group">
+        <label>النوع</label>
+        <select id="filterType">
+          <option value="">الكل</option>
+          <option value="Revenue">إيرادات</option>
+          <option value="Expense">مصروفات</option>
+        </select>
+      </div>
+      <button class="submit-btn" style="margin-top: 24px;" onclick="loadFinancials()">تصفية</button>
+    </div>
     <div class="table-wrapper">
       <table>
         <thead>
           <tr>
             <th>التاريخ</th>
-            <th>المصدر</th>
             <th>النوع</th>
-            <th>البيان</th>
+            <th>الفئة</th>
+            <th>الوصف</th>
             <th>المبلغ</th>
+            <th>المرجع</th>
+            <th>الحالة</th>
           </tr>
         </thead>
         <tbody id="financeTable">
-          <tr><td colspan="5" style="text-align:center; color:var(--muted);">جاري التحميل...</td></tr>
+          <tr><td colspan="7" style="text-align:center; color:var(--muted);">جاري التحميل...</td></tr>
         </tbody>
       </table>
     </div>
@@ -147,115 +188,87 @@ th { background: var(--bg); color: var(--primary); text-transform: uppercase; fo
 
 <script>
 // ⚠️ REPLACE WITH YOUR DEPLOYED /exec URL (GAS must be deployed with "Anyone" access)
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvIfvSzPw8vDtjcViehbh6WlCfsuXzguFZ15UqToMb9ASsbv_c1cJAclmH7udYKXmAWg/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXDGLMtulxN23kDkNqDPPX7JYaJtOL4A15tN_u1apnjhe4jJvhlkDgvFas943gj9jy0w/exec';
+
+// Unified API caller - handles both JSON and FormData
+async function api(action, payload = {}, method = 'POST') {
+  const formData = new FormData();
+  formData.append('action', action);
+  Object.entries(payload).forEach(([key, value]) => {
+    formData.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+  });
+  
+  const res = await fetch(APPS_SCRIPT_URL, { method, body: formData });
+  const data = await res.json();
+  if (!data.success) throw new Error(data.data?.error || 'Request failed');
+  return data.data;
+}
 
 async function loadFinancials() {
   try {
-    const res = await fetch(APPS_SCRIPT_URL + '?action=getFinancials');
-    const data = await res.json();
-    if (data.status === 'success') {
-      const records = data.records || [];
-      let rev = 0, exp = 0;
-      
-      const tbody = document.getElementById('financeTable');
-      if(records.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--muted);">لا توجد حركات مالية مسجلة</td></tr>';
-      } else {
-        tbody.innerHTML = records.map(r => {
-          // Handle different column names from Fund vs Transaction sheets
-          const isFund = r._source === 'FUND';
-          const isTransaction = r._source === 'TRANSACTION';
-          
-          let amount = 0;
-          let type = '';
-          let description = '';
-          let sourceLabel = '';
-          let sourceColor = '';
-          
-          if (isFund) {
-            // Fund sheet: Funder Name (used as Type), Amount, Details (Description)
-            amount = Number(r.Amount || r['المبلغ'] || 0);
-            type = r['Funder Name'] || r['اسم الممول'] || r.Type || 'غير محدد';
-            description = r.Details || r['التفاصيل'] || r.Description || '';
-            sourceLabel = 'Fund';
-            sourceColor = 'var(--primary)';
-            
-            // Classify as revenue/expense based on type
-            if (type === 'Funding' || type === 'Capital' || type === 'تمويل' || type === 'رأس مال') {
-              rev += amount;
-            } else {
-              exp += amount;
-            }
-          } else if (isTransaction) {
-            // Transaction sheet: Revenue, Expense, Net Profit columns
-            const revenue = Number(r.Revenue || r['الإيراد'] || 0);
-            const expense = Number(r.Expense || r['المصروف'] || r['تكلفة بضاعة'] || 0);
-            const delivery = Number(r.Delivery || r['التوصيل'] || r['مصاريف توصيل'] || 0);
-            amount = revenue; // Show revenue as main amount
-            type = 'طلب مسلم';
-            description = r.Notes || r['ملاحظات'] || 'طلب عميل';
-            sourceLabel = 'Transactions';
-            sourceColor = 'var(--success)';
-            
-            rev += revenue;
-            exp += expense + delivery;
-          } else {
-            // Fallback for old format
-            amount = Number(r.Amount || 0);
-            type = r.Type || 'غير محدد';
-            description = r.Description || '';
-            sourceLabel = 'غير معروف';
-            sourceColor = 'var(--muted)';
-            
-            if(type === 'Revenue') rev += amount;
-            else exp += amount;
-          }
-          
-          return `
-            <tr>
-              <td>${r.Date || r['التاريخ'] || '-'}</td>
-              <td><span style="color:${sourceColor}; font-weight:700; font-size:11px;">${sourceLabel}</span></td>
-              <td><span style="color:${(isFund && (type==='Funding'||type==='Capital')) || isTransaction ? 'var(--success)' : 'var(--danger)'}; font-weight:700;">${type}</span></td>
-              <td>${description || '-'}</td>
-              <td>${amount.toLocaleString()} EGP</td>
-            </tr>
-          `;
-        }).join('');
-      }
-      
-      document.getElementById('totalRevenue').textContent = rev.toLocaleString() + ' EGP';
-      document.getElementById('totalExpenses').textContent = exp.toLocaleString() + ' EGP';
-      const net = rev - exp;
-      const netEl = document.getElementById('netProfit');
-      netEl.textContent = net.toLocaleString() + ' EGP';
-      netEl.className = 'stat-value ' + (net >= 0 ? 'success' : 'danger');
+    const payload = {};
+    const startDate = document.getElementById('filterStartDate').value;
+    const endDate = document.getElementById('filterEndDate').value;
+    const type = document.getElementById('filterType').value;
+    
+    if (startDate) payload.startDate = startDate;
+    if (endDate) payload.endDate = endDate;
+    if (type) payload.type = type;
+    
+    const { financials } = await api('getFinancials', payload, 'GET');
+    let rev = 0, exp = 0;
+    
+    const tbody = document.getElementById('financeTable');
+    if (financials.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--muted);">لا توجد حركات مالية مسجلة</td></tr>';
+    } else {
+      tbody.innerHTML = financials.map(r => {
+        const amount = Number(r.amount || 0);
+        const isRevenue = r.type === 'Revenue';
+        
+        if (isRevenue) rev += amount;
+        else exp += amount;
+        
+        return `
+          <tr>
+            <td>${r.date || '-'}</td>
+            <td><span style="color:${isRevenue ? 'var(--success)' : 'var(--danger)'}; font-weight:700;">${r.type === 'Revenue' ? 'إيراد' : 'مصروف'}</span></td>
+            <td>${r.category || '-'}</td>
+            <td>${r.description || '-'}</td>
+            <td style="color:${isRevenue ? 'var(--success)' : 'var(--danger)'}; font-weight:700;">${amount.toLocaleString()} EGP</td>
+            <td>${r.referenceId || '-'}</td>
+            <td>${r.status || 'معلق'}</td>
+          </tr>
+        `;
+      }).join('');
     }
+    
+    document.getElementById('totalRevenue').textContent = rev.toLocaleString() + ' EGP';
+    document.getElementById('totalExpenses').textContent = exp.toLocaleString() + ' EGP';
+    const net = rev - exp;
+    const netEl = document.getElementById('netProfit');
+    netEl.textContent = net.toLocaleString() + ' EGP';
+    netEl.className = 'stat-value ' + (net >= 0 ? 'success' : 'danger');
   } catch (err) {
     console.error(err);
+    showToast('فشل تحميل السجلات المالية', true);
   }
 }
 
 async function addFinancialRecord(e) {
   e.preventDefault();
-  const formData = new FormData();
-  formData.append('action', 'addFinancialRecord');
-  formData.append('type', document.getElementById('transType').value);
-  formData.append('amount', document.getElementById('transAmount').value);
-  formData.append('description', document.getElementById('transDescription').value);
-  
   try {
-    const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData });
-    const data = await res.json();
-    if (data.status === 'success') {
-      showToast('تم تسجيل المعاملة بنجاح');
-      e.target.reset();
-      loadFinancials();
-    } else {
-      showToast(data.message || 'فشل التسجيل', true);
-    }
-  } catch (err) {
-    showToast('خطأ في الاتصال بالسيرفر', true);
-  }
+    await api('addFinancial', {
+      type: document.getElementById('transType').value,
+      amount: Number(document.getElementById('transAmount').value),
+      category: document.getElementById('transCategory').value,
+      description: document.getElementById('transDescription').value,
+      date: document.getElementById('transDate').value || new Date().toISOString().split('T')[0]
+    });
+    showToast('تم تسجيل المعاملة بنجاح');
+    e.target.reset();
+    loadFinancials();
+  } catch (err) { showToast(err.message || 'فشل التسجيل', true); }
 }
 
 function showToast(msg, isError = false) {

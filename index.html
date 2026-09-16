@@ -328,7 +328,7 @@ body {
 <script>
 // ⚠️ REPLACE THIS WITH YOUR DEPLOYED /exec URL AFTER GAS DEPLOY WITH "Anyone" ACCESS
 // Deploy → Manage deployments → Edit → Who has access: "Anyone" (NOT "Anyone with link")
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvIfvSzPw8vDtjcViehbh6WlCfsuXzguFZ15UqToMb9ASsbv_c1cJAclmH7udYKXmAWg/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXDGLMtulxN23kDkNqDPPX7JYaJtOL4A15tN_u1apnjhe4jJvhlkDgvFas943gj9jy0w/exec';
 const STORE_WHATSAPP = '201119668221';
 
 // State
@@ -350,27 +350,41 @@ const cartTotal = document.getElementById('cartTotal');
 const checkoutBtn = document.getElementById('checkoutBtn');
 const toast = document.getElementById('toast');
 
+// Unified API caller - handles both JSON and FormData
+async function api(action, payload = {}, method = 'POST') {
+  const formData = new FormData();
+  formData.append('action', action);
+  Object.entries(payload).forEach(([key, value]) => {
+    formData.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+  });
+  
+  const res = await fetch(APPS_SCRIPT_URL, { method, body: formData });
+  const data = await res.json();
+  if (!data.success) throw new Error(data.data?.error || 'Request failed');
+  return data.data;
+}
+
 // Init
 document.addEventListener('DOMContentLoaded', async () => {
-  await Promise.all([loadCategories(), loadProducts()]);
+  await loadProducts();
   updateCartUI();
 });
 
-// Load Categories from API
-async function loadCategories() {
+// Load Products
+async function loadProducts() {
   try {
-    const res = await fetch(APPS_SCRIPT_URL + '?action=getCategories');
-    const data = await res.json();
-    if (data.status === 'success' && data.categories) {
-      renderCategories(data.categories);
-    }
+    const { products } = await api('getProducts', {}, 'GET');
+    allProducts = products;
+    renderCategories();
+    filterProducts();
   } catch (err) {
-    console.error('Failed to load categories:', err);
+    productsGrid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#ff4444;">خطأ في الاتصال بقاعدة البيانات</p>';
   }
 }
 
-// Render Categories in Sidebar
-function renderCategories(categories) {
+// Derive categories from products
+function renderCategories() {
+  const categories = [...new Set(allProducts.map(p => p.category || 'عام').filter(Boolean))];
   const allBtn = categoryList.querySelector('[data-category="all"]');
   categoryList.innerHTML = '';
   categoryList.appendChild(allBtn);
@@ -391,11 +405,10 @@ function renderCategories(categories) {
   updateCategoryCounts();
 }
 
-// Update category product counts
 function updateCategoryCounts() {
   const counts = {};
   allProducts.forEach(p => {
-    const cat = p.Category || 'عام';
+    const cat = p.category || 'عام';
     counts[cat] = (counts[cat] || 0) + 1;
   });
   document.getElementById('cat-count-all').textContent = allProducts.length;
@@ -405,7 +418,6 @@ function updateCategoryCounts() {
   });
 }
 
-// Select Category
 function selectCategory(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.category-item').forEach(b => b.classList.remove('active'));
@@ -414,7 +426,6 @@ function selectCategory(cat, btn) {
   filterProducts();
 }
 
-// Sidebar Controls
 function openSidebar() {
   categorySidebar.classList.add('active');
   sidebarOverlay.classList.add('active');
@@ -426,7 +437,6 @@ function closeSidebar() {
   document.body.style.overflow = '';
 }
 
-// Cart Controls
 function openCart() {
   cartSidebar.classList.add('active');
   cartOverlay.classList.add('active');
@@ -439,25 +449,10 @@ function closeCart() {
   document.body.style.overflow = '';
 }
 
-// Load Products
-async function loadProducts() {
-  try {
-    const res = await fetch(APPS_SCRIPT_URL + '?action=getProducts');
-    const data = await res.json();
-    if (data.status === 'success') {
-      allProducts = data.products || [];
-      filterProducts();
-    }
-  } catch (err) {
-    productsGrid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#ff4444;">خطأ في الاتصال بقاعدة البيانات</p>';
-  }
-}
-
-// Filter Products by Category
 function filterProducts() {
   let filtered = currentCategory === 'all' 
     ? allProducts 
-    : allProducts.filter(p => (p.Category || 'عام') === currentCategory);
+    : allProducts.filter(p => (p.category || 'عام') === currentCategory);
   
   if (filtered.length === 0) {
     productsGrid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:var(--muted);">لا توجد منتجات في هذا التصنيف</p>';
@@ -465,15 +460,15 @@ function filterProducts() {
   }
   
   productsGrid.innerHTML = filtered.map(p => `
-    <div class="product-card" data-id="${p.ID}">
+    <div class="product-card" data-id="${p.id}">
       <div class="product-image">
-        <img src="${p.Image || 'https://via.placeholder.com/300'}" alt="${p.Name}">
+        <img src="${p.imageUrl || 'https://via.placeholder.com/300'}" alt="${p.name}">
       </div>
       <div class="product-info">
-        <div class="product-category">${p.Category || 'عام'}</div>
-        <div class="product-name">${p.Name}</div>
-        <div class="product-price">${Number(p.Price || 0).toLocaleString()} EGP</div>
-        <button class="add-cart-btn" onclick="addToCart('${p.ID}', event)" data-id="${p.ID}">إضافة للسلة</button>
+        <div class="product-category">${p.category || 'عام'}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">${Number(p.price || 0).toLocaleString()} EGP</div>
+        <button class="add-cart-btn" onclick="addToCart('${p.id}', event)" data-id="${p.id}">إضافة للسلة</button>
       </div>
     </div>
   `).join('');
@@ -481,7 +476,7 @@ function filterProducts() {
 
 // Cart Functions
 function addToCart(productId, e) {
-  const product = allProducts.find(p => p.ID == productId);
+  const product = allProducts.find(p => p.id == productId);
   if (!product) return;
   
   const existing = cart.find(item => item.id == productId);
@@ -489,10 +484,10 @@ function addToCart(productId, e) {
     existing.qty += 1;
   } else {
     cart.push({
-      id: product.ID,
-      name: product.Name,
-      price: Number(product.Price || 0),
-      image: product.Image || 'https://via.placeholder.com/300',
+      id: product.id,
+      name: product.name,
+      price: Number(product.price || 0),
+      image: product.imageUrl || 'https://via.placeholder.com/300',
       qty: 1
     });
   }
@@ -606,49 +601,29 @@ async function submitOrder(e) {
     qty: item.qty
   }));
 
-  const orderData = {
-    action: 'saveOrder',
-    data: {
+  try {
+    const result = await api('addOrder', {
       customerName: document.getElementById('customerName').value,
       customerPhone: document.getElementById('customerPhone').value,
       customerAddress: document.getElementById('customerAddress').value,
-      customerNotes: document.getElementById('customerNotes').value,
       items: items,
-      totalAmount: total
-    }
-  };
-
-  try {
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(orderData)
+      total: total,
+      notes: document.getElementById('customerNotes').value
     });
     
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    }
+    showToast('تم إرسال طلبك بنجاح! رقم الطلب: ' + result.order?.id);
+    cart = [];
+    saveCart();
+    updateCartUI();
+    closeCheckoutModal();
+    document.getElementById('checkoutForm').reset();
     
-    const data = await res.json();
-    console.log('Order response:', data); // Debug log
-    
-    if (data.status === 'success') {
-      showToast('تم إرسال طلبك بنجاح! رقم الطلب: ' + data.orderId);
-      cart = [];
-      saveCart();
-      updateCartUI();
-      closeCheckoutModal();
-      document.getElementById('checkoutForm').reset();
-      
-      // Also send to WhatsApp
-      const message = `طلب جديد من FIGURAX:\n${items.map(i => `${i.name} x${i.qty}`).join(', ')}\nالإجمالي: ${total.toLocaleString()} EGP\nالعميل: ${orderData.data.customerName}\nالهاتف: ${orderData.data.customerPhone}\nالعنوان: ${orderData.data.customerAddress}`;
-      const whatsappUrl = `https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(message)}`;
-      setTimeout(() => window.open(whatsappUrl, '_blank'), 1000);
-    } else {
-      showToast(data.message || 'فشل في إرسال الطلب', true);
-    }
+    // Also send to WhatsApp
+    const message = `طلب جديد من FIGURAX:\n${items.map(i => `${i.name} x${i.qty}`).join(', ')}\nالإجمالي: ${total.toLocaleString()} EGP\nالعميل: ${document.getElementById('customerName').value}\nالهاتف: ${document.getElementById('customerPhone').value}\nالعنوان: ${document.getElementById('customerAddress').value}`;
+    const whatsappUrl = `https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(message)}`;
+    setTimeout(() => window.open(whatsappUrl, '_blank'), 1000);
   } catch (err) {
-    console.error('Order error:', err); // Debug log
+    console.error('Order error:', err);
     showToast('خطأ في الاتصال: ' + err.message, true);
   } finally {
     btn.disabled = false;

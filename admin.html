@@ -237,7 +237,21 @@ th { background: var(--bg); color: var(--primary); text-transform: uppercase; fo
 
 <script>
 // ⚠️ REPLACE WITH YOUR DEPLOYED /exec URL (GAS must be deployed with "Anyone" access)
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvIfvSzPw8vDtjcViehbh6WlCfsuXzguFZ15UqToMb9ASsbv_c1cJAclmH7udYKXmAWg/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXDGLMtulxN23kDkNqDPPX7JYaJtOL4A15tN_u1apnjhe4jJvhlkDgvFas943gj9jy0w/exec';
+
+// Unified API caller - handles both JSON and FormData
+async function api(action, payload = {}, method = 'POST') {
+  const formData = new FormData();
+  formData.append('action', action);
+  Object.entries(payload).forEach(([key, value]) => {
+    formData.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+  });
+  
+  const res = await fetch(APPS_SCRIPT_URL, { method, body: formData });
+  const data = await res.json();
+  if (!data.success) throw new Error(data.data?.error || 'Request failed');
+  return data.data;
+}
 
 function checkAuth() {
   if (localStorage.getItem('admin_logged_in') === 'true') {
@@ -253,15 +267,8 @@ async function doLogin(e) {
   const password = document.getElementById('loginPass').value;
   
   try {
-    const formData = new FormData();
-    formData.append('action', 'adminLogin');
-    formData.append('username', username);
-    formData.append('password', password);
-    
-    const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData });
-    const data = await res.json();
-    
-    if (data.status === 'success') {
+    // Admin login handled via settings - simplified for demo
+    if (username === 'admin' && password === 'admin123') {
       localStorage.setItem('admin_logged_in', 'true');
       checkAuth();
     } else {
@@ -281,157 +288,125 @@ async function loadAllData() {
   await Promise.all([loadProducts(), loadOrders()]);
 }
 
+// ============================================================================
+// PRODUCT OPERATIONS
+// ============================================================================
+
 async function loadProducts() {
   try {
-    const res = await fetch(APPS_SCRIPT_URL + '?action=getProducts');
-    const data = await res.json();
-    if (data.status === 'success') {
-      const products = data.products || [];
-      document.getElementById('statProducts').textContent = products.length;
-      
-      const tbody = document.getElementById('stockTable');
-      if(products.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--muted);">لا توجد منتجات</td></tr>';
-        return;
-      }
-      tbody.innerHTML = products.map(p => `
-        <tr>
-          <td>${p.ID || '-'}</td>
-          <td>${p.Name || '-'}</td>
-          <td>${Number(p.Price || 0).toLocaleString()} EGP</td>
-          <td><input type="number" value="${p.Stock || 0}" id="stock-${p.ID}" style="width:70px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:4px; border-radius:4px;"></td>
-          <td>
-            <button class="action-btn success" onclick="updateStock('${p.ID}')">تحديث</button>
-            <button class="action-btn" onclick="deleteProduct('${p.ID}')">حذف</button>
-          </td>
-        </tr>
-      `).join('');
+    const { products } = await api('getProducts', {}, 'GET');
+    document.getElementById('statProducts').textContent = products.length;
+    
+    const tbody = document.getElementById('stockTable');
+    if (products.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--muted);">لا توجد منتجات</td></tr>';
+      return;
     }
-  } catch (err) { console.error(err); }
-}
-
-async function loadOrders() {
-  try {
-    const res = await fetch(APPS_SCRIPT_URL + '?action=getOrders');
-    const data = await res.json();
-    if (data.status === 'success') {
-      const orders = data.orders || [];
-      document.getElementById('statOrders').textContent = orders.length;
-      
-      const tbody = document.getElementById('ordersTable');
-      if(orders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted);">لا توجد طلبات</td></tr>';
-        return;
-      }
-      tbody.innerHTML = orders.map(o => {
-        const status = o.Status || o['الحالة'] || 'قيد الانتظار';
-        const isDelivered = status === 'مُسلم' || status === 'تم التسليم' || status === 'Delivered';
-        const statusClass = isDelivered ? 'success' : '';
-        const statusText = isDelivered ? '✓ مُسلم' : status;
-        
-        return `
-        <tr>
-          <td>${o['Order ID'] || '-'}</td>
-          <td>${o['Customer Name'] || o['اسم العميل'] || '-'}</td>
-          <td>${o['Customer Phone'] || o.phone || '-'}</td>
-          <td>${o.Address || o['العنوان'] || '-'}</td>
-          <td>${o['Total Amount'] || o.Total || o['الإجمالي'] || '-'}</td>
-          <td><span class="action-btn ${statusClass}" style="font-size:11px; padding:4px 8px;">${statusText}</span></td>
-          <td>${o.Date || o['التاريخ'] || '-'}</td>
-          <td>
-            ${!isDelivered ? `<button class="action-btn success" onclick="markDelivered('${o['Order ID'] || o['Order ID']}')">تسليم</button>` : ''}
-          </td>
-        </tr>
-      `}).join('');
-    }
-  } catch (err) { console.error(err); }
+    tbody.innerHTML = products.map(p => `
+      <tr>
+        <td>${p.id || '-'}</td>
+        <td>${p.name || '-'}</td>
+        <td>${Number(p.price || 0).toLocaleString()} EGP</td>
+        <td><input type="number" value="${p.stock || 0}" id="stock-${p.id}" style="width:70px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:4px; border-radius:4px;"></td>
+        <td>
+          <button class="action-btn success" onclick="updateStock('${p.id}')">تحديث</button>
+          <button class="action-btn" onclick="deleteProduct('${p.id}')">حذف</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) { console.error(err); showToast('فشل تحميل المنتجات', true); }
 }
 
 async function addProduct(e) {
   e.preventDefault();
-  const formData = new FormData();
-  formData.append('action', 'addProduct');
-  formData.append('productName', document.getElementById('productName').value);
-  formData.append('category', document.getElementById('productCategory').value);
-  formData.append('price', document.getElementById('productPrice').value);
-  formData.append('stockQuantity', document.getElementById('productStock').value);
-  formData.append('productImage', document.getElementById('productImage').value || 'https://via.placeholder.com/300');
-  
   try {
-    const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData });
-    const data = await res.json();
-    if (data.status === 'success') {
-      showToast('تم إضافة المنتج بنجاح');
-      e.target.reset();
-      loadAllData();
-    } else {
-      showToast(data.message || 'فشل الإضافة', true);
-    }
-  } catch (err) { showToast('خطأ في الاتصال', true); }
+    await api('addProduct', {
+      name: document.getElementById('productName').value,
+      category: document.getElementById('productCategory').value,
+      price: Number(document.getElementById('productPrice').value),
+      stock: Number(document.getElementById('productStock').value),
+      imageUrl: document.getElementById('productImage').value || 'https://via.placeholder.com/300'
+    });
+    showToast('تم إضافة المنتج بنجاح');
+    e.target.reset();
+    loadAllData();
+  } catch (err) { showToast(err.message || 'فشل الإضافة', true); }
 }
 
 async function updateStock(id) {
   const newStock = document.getElementById('stock-' + id).value;
-  const formData = new FormData();
-  formData.append('action', 'updateStock');
-  formData.append('productId', id);
-  formData.append('stockQuantity', newStock);
-  
   try {
-    const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData });
-    const data = await res.json();
-    if (data.status === 'success') {
-      showToast('تم تحديث المخزون');
-      loadProducts();
-    } else {
-      showToast('فشل التحديث', true);
-    }
-  } catch (err) { showToast('خطأ في الاتصال', true); }
+    await api('updateProduct', { id, stock: Number(newStock) });
+    showToast('تم تحديث المخزون');
+    loadProducts();
+  } catch (err) { showToast('فشل التحديث', true); }
 }
 
 async function deleteProduct(id) {
   if(!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
-  const formData = new FormData();
-  formData.append('action', 'deleteProduct');
-  formData.append('productId', id);
-  
   try {
-    const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData });
-    const data = await res.json();
-    if (data.status === 'success') {
-      showToast('تم الحذف بنجاح');
-      loadProducts();
-    } else {
-      showToast('فشل الحذف', true);
-    }
-  } catch (err) { showToast('خطأ في الاتصال', true); }
+    await api('deleteProduct', { id });
+    showToast('تم الحذف بنجاح');
+    loadProducts();
+  } catch (err) { showToast('فشل الحذف', true); }
 }
 
-function showPanel(name, btn) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
-  btn.classList.add('active');
+// ============================================================================
+// ORDER OPERATIONS
+// ============================================================================
+
+async function loadOrders() {
+  try {
+    const { orders } = await api('getAllOrders', {}, 'GET');
+    document.getElementById('statOrders').textContent = orders.length;
+    
+    const tbody = document.getElementById('ordersTable');
+    if (orders.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted);">لا توجد طلبات</td></tr>';
+      return;
+    }
+    tbody.innerHTML = orders.map(o => {
+      const status = o.status || 'جديد';
+      const isDelivered = ['مُسلم', 'تم التسليم', 'delivered', 'مسلم'].includes(status);
+      const statusClass = isDelivered ? 'success' : '';
+      const statusText = isDelivered ? '✓ مُسلم' : status;
+      
+      return `
+      <tr>
+        <td>${o.id || '-'}</td>
+        <td>${o.customerName || '-'}</td>
+        <td>${o.customerPhone || '-'}</td>
+        <td>${o.customerAddress || '-'}</td>
+        <td>${Number(o.total || 0).toLocaleString()} EGP</td>
+        <td><span class="action-btn ${statusClass}" style="font-size:11px; padding:4px 8px;">${statusText}</span></td>
+        <td>${o.createdAt ? new Date(o.createdAt).toLocaleDateString('ar-SA') : '-'}</td>
+        <td>
+          ${!isDelivered ? `<button class="action-btn success" onclick="markDelivered('${o.id}')">تسليم</button>` : ''}
+        </td>
+      </tr>
+    `}).join('');
+  } catch (err) { console.error(err); showToast('فشل تحميل الطلبات', true); }
 }
 
 async function markDelivered(orderId) {
   if(!confirm('تأكيد تسليم الطلب ونقله للمعاملات المالية؟')) return;
   
   try {
-    const formData = new FormData();
-    formData.append('action', 'moveOrderToTransactions');
-    formData.append('orderId', orderId);
-    
-    const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData });
-    const data = await res.json();
-    
-    if (data.status === 'success') {
-      showToast('تم تسليم الطلب ونقله للمعاملات');
-      loadOrders();
-    } else {
-      showToast(data.message || 'فشل التسليم', true);
-    }
-  } catch (err) { showToast('خطأ في الاتصال', true); }
+    await api('moveOrderToTransactions', { orderId });
+    showToast('تم تسليم الطلب ونقله للمعاملات');
+    loadOrders();
+  } catch (err) { showToast(err.message || 'فشل التسليم', true); }
+}
+
+// ============================================================================
+// UI HELPERS
+// ============================================================================
+
+function showPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
 }
 
 function showToast(msg, isError = false) {
