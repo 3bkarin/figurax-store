@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
 <style>
   @font-face {
     font-family: 'Inter';
@@ -661,20 +662,20 @@ function showToast(msg, isError = false) {
       <div class="modal-body">
         <div class="modal-row">
           <div class="form-group">
-            <label>الاسم بالكامل *</label>
+            <label for="customerName">الاسم بالكامل *</label>
             <input type="text" id="customerName" required placeholder="محمد أحمد">
           </div>
           <div class="form-group">
-            <label>رقم الهاتف *</label>
+            <label for="customerPhone">رقم الهاتف *</label>
             <input type="tel" id="customerPhone" required placeholder="01012345678" pattern="[0-9]{10,11}">
           </div>
         </div>
         <div class="form-group">
-          <label>العنوان بالتفصيل *</label>
+          <label for="customerAddress">العنوان بالتفصيل *</label>
           <textarea id="customerAddress" required rows="3" placeholder="العنوان الكامل: الشارع، المنطقة، المدينة، المحافظة"></textarea>
         </div>
         <div class="form-group">
-          <label>ملاحظات (اختياري)</label>
+          <label for="customerNotes">ملاحظات (اختياري)</label>
           <textarea id="customerNotes" rows="2" placeholder="أي ملاحظات إضافية للطلب..."></textarea>
         </div>
         

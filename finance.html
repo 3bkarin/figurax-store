@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
 <style>
   @font-face {
     font-family: 'Inter';
@@ -115,14 +116,14 @@ th { background: var(--bg); color: var(--primary); text-transform: uppercase; fo
     <form onsubmit="addFinancialRecord(event)">
       <div class="form-row">
         <div class="form-group">
-          <label>نوع المعاملة *</label>
+          <label for="transType">نوع المعاملة *</label>
           <select id="transType" required>
             <option value="Revenue">إيراد (داخلي)</option>
             <option value="Expense">مصروف (خارجي)</option>
           </select>
         </div>
         <div class="form-group">
-          <label>الفئة</label>
+          <label for="transCategory">الفئة</label>
           <select id="transCategory">
             <option value="">-- اختر الفئة --</option>
             <option value="Operations">عمليات</option>
@@ -136,41 +137,41 @@ th { background: var(--bg); color: var(--primary); text-transform: uppercase; fo
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>المبلغ (EGP) *</label>
+          <label for="transAmount">المبلغ (EGP) *</label>
           <input type="number" id="transAmount" min="0" step="0.01" required>
         </div>
-        <div class="form-group">
-          <label>التاريخ</label>
-          <input type="date" id="transDate">
-        </div>
+<div class="form-group">
+        <label for="transDate">التاريخ</label>
+        <input type="date" id="transDate">
       </div>
-      <div class="form-group">
-        <label>الوصف *</label>
-        <input type="text" id="transDescription" required placeholder="مثال: شراء خامات طباعة 3D / خيوط PLA">
-      </div>
-      <button type="submit" class="submit-btn">حفظ المعاملة</button>
-    </form>
-  </div>
+    </div>
+    <div class="form-group">
+      <label for="transDescription">الوصف *</label>
+      <input type="text" id="transDescription" required placeholder="مثال: شراء خامات طباعة 3D / خيوط PLA">
+    </div>
+    <button type="submit" class="submit-btn">حفظ المعاملة</button>
+  </form>
+</div>
 
-  <!-- سجل المعاملات المالية -->
-  <div class="panel-card">
-    <h3>سجل الحركات المالية</h3>
-    <div class="filter-row">
-      <div class="form-group">
-        <label>من تاريخ</label>
-        <input type="date" id="filterStartDate">
-      </div>
-      <div class="form-group">
-        <label>إلى تاريخ</label>
-        <input type="date" id="filterEndDate">
-      </div>
-      <div class="form-group">
-        <label>النوع</label>
-        <select id="filterType">
-          <option value="">الكل</option>
-          <option value="Revenue">إيرادات</option>
-          <option value="Expense">مصروفات</option>
-        </select>
+<!-- سجل المعاملات المالية -->
+<div class="panel-card">
+  <h3>سجل الحركات المالية</h3>
+  <div class="filter-row">
+    <div class="form-group">
+      <label for="filterStartDate">من تاريخ</label>
+      <input type="date" id="filterStartDate">
+    </div>
+    <div class="form-group">
+      <label for="filterEndDate">إلى تاريخ</label>
+      <input type="date" id="filterEndDate">
+    </div>
+    <div class="form-group">
+      <label for="filterType">النوع</label>
+      <select id="filterType">
+        <option value="">الكل</option>
+        <option value="Revenue">إيرادات</option>
+        <option value="Expense">مصروفات</option>
+      </select>
       </div>
       <button class="submit-btn" style="margin-top: 24px;" onclick="loadFinancials()">تصفية</button>
     </div>
