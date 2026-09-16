@@ -1,214 +1,700 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIGURAX - Premium Collectibles</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; --text: #0f172a; --card: #ffffff; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text); }
-        header { background: var(--card); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
-        .btn { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; text-decoration: none; display: inline-block; }
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
-        .product-card { background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s; }
-        .product-card:hover { transform: translateY(-5px); }
-        .product-img { width: 100%; height: 200px; object-fit: cover; background: #e2e8f0; }
-        .product-info { padding: 1rem; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal.active { display: flex; }
-        .modal-content { background: var(--card); padding: 2rem; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; }
-        .cart-summary { background: #f1f5f9; padding: 1rem; border-radius: 6px; margin: 1rem 0; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIGURAX - Premium Collectibles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+<style>
+  @font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400 900;
+    font-display: swap;
+    src: url(https://fonts.gstatic.com/s/inter/v19/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #C41E3A;
+  --primary-hover: #a01830;
+  --bg: #0a0a0a;
+  --card: #111;
+  --border: #2a2a2a;
+  --text: #E8E8E8;
+  --muted: #A0A0A0;
+  --success: #00b894;
+  --danger: #ff4444;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.header {
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  padding: 15px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+.container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+.nav { display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 26px; font-weight: 900; letter-spacing: 3px; color: var(--primary); cursor: pointer; }
+.nav-links { display: flex; gap: 25px; align-items: center; }
+.nav-links a { color: var(--text); text-decoration: none; font-size: 14px; font-weight: 600; cursor: pointer; text-transform: uppercase; }
+.nav-links a:hover, .nav-links a.active { color: var(--primary); }
+.menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 24px;
+  cursor: pointer;
+}
+.cart-btn {
+  background: var(--primary); color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;
+}
+.cart-btn:hover { background: var(--primary-hover); }
+.cart-count { background: white; color: var(--primary); border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+
+/* Sidebar for Categories */
+.sidebar-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1100;
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.3s;
+}
+.sidebar-overlay.active { opacity: 1; visibility: visible; }
+.sidebar {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 280px;
+  max-width: 85vw;
+  background: var(--card);
+  border-left: 1px solid var(--border);
+  z-index: 1101;
+  transform: translateX(100%);
+  transition: 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar.active { transform: translateX(0); }
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sidebar-title { font-size: 18px; font-weight: 700; color: var(--primary); }
+.sidebar-close { background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
+.sidebar-content { flex: 1; overflow-y: auto; padding: 15px; }
+.category-list { display: flex; flex-direction: column; gap: 8px; }
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.category-item:hover, .category-item.active {
+  border-color: var(--primary);
+  background: rgba(196, 30, 58, 0.1);
+}
+.category-item.active { border-color: var(--primary); }
+.category-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.category-name { font-weight: 600; font-size: 14px; }
+.category-count { margin-left: auto; background: var(--primary); color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+
+/* Cart Sidebar */
+.cart-sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 380px;
+  max-width: 90vw;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  z-index: 1102;
+  transform: translateX(-100%);
+  transition: 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+.cart-sidebar.active { transform: translateX(0); }
+.cart-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cart-title { font-size: 18px; font-weight: 700; color: var(--primary); }
+.cart-close { background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
+.cart-items { flex: 1; overflow-y: auto; padding: 15px; }
+.cart-empty { text-align: center; color: var(--muted); padding: 40px 0; }
+.cart-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.cart-item-image { width: 60px; height: 60px; border-radius: 6px; object-fit: cover; background: var(--card); }
+.cart-item-info { flex: 1; min-width: 0; }
+.cart-item-name { font-weight: 600; font-size: 13px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cart-item-price { color: var(--primary); font-weight: 700; font-size: 13px; margin-bottom: 8px; }
+.cart-item-qty { display: flex; align-items: center; gap: 8px; }
+.qty-btn { width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.qty-btn:hover { border-color: var(--primary); }
+.qty-value { min-width: 24px; text-align: center; font-weight: 600; }
+.cart-item-remove { color: var(--danger); background: none; border: none; font-size: 12px; cursor: pointer; padding: 4px; }
+.cart-footer {
+  padding: 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+.cart-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+.cart-total .amount { color: var(--primary); }
+.checkout-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
+.checkout-btn:hover { background: var(--primary-hover); }
+.checkout-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.hero { padding: 80px 0; text-align: center; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); border-bottom: 1px solid var(--border); }
+.hero h1 { font-size: 42px; font-weight: 900; margin-bottom: 10px; }
+.hero h1 span { color: var(--primary); }
+.hero p { color: var(--muted); font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+.products-section { padding: 50px 0; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
+.section-title { font-size: 24px; font-weight: 700; }
+.section-title span { color: var(--primary); }
+.sort-bar { display: flex; gap: 10px; }
+.sort-btn { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+.sort-btn.active, .sort-btn:hover { background: var(--primary); border-color: var(--primary); }
+.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+.product-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: 0.3s; }
+.product-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+.product-image { width: 100%; height: 250px; background: #111; overflow: hidden; }
+.product-image img { width: 100%; height: 100%; object-fit: cover; }
+.product-info { padding: 20px; }
+.product-category { color: var(--primary); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+.product-name { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.product-price { font-size: 18px; font-weight: 900; color: var(--primary); margin-bottom: 10px; }
+.add-cart-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 700; transition: 0.2s; }
+.add-cart-btn:hover { background: var(--primary-hover); }
+.add-cart-btn.added { background: var(--success); }
+.footer { text-align: center; padding: 30px 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; margin-top: 50px; }
+
+.toast {
+  position: fixed; bottom: 20px; left: 20px; background: var(--success); color: white; padding: 12px 20px; border-radius: 6px; font-weight: 600; z-index: 2000; opacity: 0; transition: 0.3s;
+}
+.toast.error { background: var(--danger); }
+.toast.show { opacity: 1; }
+
+/* Checkout Modal */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8); z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden; transition: 0.3s;
+  padding: 20px;
+}
+.modal-overlay.active { opacity: 1; visibility: visible; }
+.modal {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+  transform: scale(0.9); transition: 0.3s;
+}
+.modal-overlay.active .modal { transform: scale(1); }
+.modal-header {
+  padding: 20px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-title { font-size: 18px; font-weight: 700; color: var(--primary); }
+.modal-close { background: none; border: none; color: var(--muted); font-size: 28px; cursor: pointer; line-height: 1; }
+.modal-body { padding: 20px; }
+.modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.form-group input, .form-group textarea {
+  width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; font-size: 14px;
+}
+.form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); }
+.order-summary { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 16px 0; }
+.summary-row { display: flex; justify-content: space-between; margin: 8px 0; font-size: 14px; }
+.summary-row.total { font-weight: 900; font-size: 16px; color: var(--primary); border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.modal-footer { padding: 20px; border-top: 1px solid var(--border); display: flex; gap: 12px; }
+.modal-btn { flex: 1; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; border: none; }
+.modal-btn.primary { background: var(--primary); color: white; }
+.modal-btn.secondary { background: var(--border); color: var(--text); }
+.modal-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+@media (max-width: 768px) {
+  .modal-row { grid-template-columns: 1fr; }
+  .menu-btn { display: block; }
+  .nav-links a:not(.cart-btn) { display: none; }
+  .sort-bar { display: none; }
+}
+</style>
 </head>
 <body>
 
-    <header>
-        <h2>FIGURAX Store</h2>
-        <div>
-            <a href="admin.html" class="btn" style="background: #64748b; margin-left: 10px;">لوحة التحكم</a>
-            <button class="btn" onclick="openCheckout()">🛒 السلة (<span id="cart-count">0</span>)</button>
-        </div>
-    </header>
-
-    <div class="container">
-        <h1 style="margin-bottom: 1.5rem;">أحدث المنتجات</h1>
-        <div id="products-container" class="products-grid">
-            <p>جاري تحميل المنتجات...</p>
-        </div>
+<!-- Category Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="sidebar" id="categorySidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-title">التصنيفات</span>
+    <button class="sidebar-close" onclick="closeSidebar()">&times;</button>
+  </div>
+  <div class="sidebar-content">
+    <div class="category-list" id="categoryList">
+      <div class="category-item active" data-category="all" onclick="selectCategory('all', this)">
+        <span class="category-icon">📦</span>
+        <span class="category-name">الكل</span>
+        <span class="category-count" id="cat-count-all">0</span>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- نموذج إتمام الطلب -->
-    <div id="checkout-modal" class="modal">
-        <div class="modal-content">
-            <h2 style="margin-bottom: 1rem;">إتمام الطلب</h2>
-            <div class="form-group"><label>الاسم بالكامل *</label><input type="text" id="order-name"></div>
-            <div class="form-group"><label>رقم الهاتف *</label><input type="tel" id="order-phone"></div>
-            <div class="form-group"><label>العنوان بالتفصيل *</label><textarea id="order-address" rows="2"></textarea></div>
-            <div class="form-group"><label>ملاحظات (اختياري)</label><textarea id="order-notes" rows="2"></textarea></div>
-            
-            <div class="cart-summary">
-                <h3>ملخص الطلب</h3>
-                <p>الإجمالي: <strong id="order-total">0 EGP</strong></p>
-            </div>
-
-            <div style="display: flex; gap: 1rem;">
-                <button class="btn" style="flex: 1; background: #25D366;" onclick="submitOrder()">إرسال الطلب وتأكيد الواتساب</button>
-                <button class="btn" style="flex: 1; background: #ef4444;" onclick="closeCheckout()">إلغاء</button>
-            </div>
-        </div>
+<!-- Cart Sidebar -->
+<div class="sidebar-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <span class="cart-title">السلة (<span id="cartTotalItems">0</span>)</span>
+    <button class="cart-close" onclick="closeCart()">&times;</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">السلة فارغة</div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>الإجمالي</span>
+      <span class="amount" id="cartTotal">0 EGP</span>
     </div>
+    <button class="checkout-btn" id="checkoutBtn" onclick="openCheckout()" disabled>إتمام الطلب</button>
+  </div>
+</div>
 
-    <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXDGLMtulxN23kDkNqDPPX7JYaJtOL4A15tN_u1apnjhe4jJvhlkDgvFas943gj9jy0w/exec';
-        // ⚠️ هام: استبدل هذا الرقم برقم الواتساب الخاص بالمتجر مع كود الدولة (مثال: 201000000000)
-        const STORE_WHATSAPP_NUMBER = '201000000000'; 
+<header class="header">
+  <div class="container">
+    <nav class="nav">
+      <div class="logo" onclick="location.reload()">FIGURAX</div>
+      <div class="nav-links" id="navLinks">
+        <button class="menu-btn" onclick="openSidebar()">☰</button>
+        <a href="admin.html" style="display:none;">لوحة التحكم</a>
+        <button class="cart-btn" onclick="openCart()">
+           السلة <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+</header>
 
-        let cart = [];
-        let products = [];
+<section class="hero">
+  <div class="container">
+    <h1>FIGURAX <span>Store</span></h1>
+    <p>متجر المجسمات والتحف الفنية</p>
+  </div>
+</section>
 
-        async function api(action, method = 'GET', body = null) {
-            const url = `${SCRIPT_URL}?action=${action}`;
-            const options = {
-                method: method,
-                redirect: 'follow', // حل مشكلة CORS
-                headers: method === 'POST' ? { 'Content-Type': 'text/plain;charset=utf-8' } : {}
-            };
-            if (body) options.body = JSON.stringify(body);
+<section class="products-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">أحدث <span>المنتجات</span></h2>
+      <div class="sort-bar">
+        <button class="sort-btn active">الكل</button>
+      </div>
+    </div>
+    <div id="productsGrid" class="products-grid">
+      <p style="text-align:center; grid-column:1/-1; color:var(--muted);">جاري تحميل المنتجات...</p>
+    </div>
+  </div>
+</section>
 
-            try {
-                const response = await fetch(url, options);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return await response.json();
-            } catch (error) {
-                console.error(`API Error [${action}]:`, error);
-                throw error;
-            }
-        }
+<footer class="footer">
+  <div class="container">
+    <p>© 2026 FIGURAX Store. All rights reserved.</p>
+  </div>
+</footer>
 
-        async function loadProducts() {
-            try {
-                const data = await api('getProducts');
-                if (data.success) {
-                    products = data.products;
-                    const container = document.getElementById('products-container');
-                    container.innerHTML = '';
-                    products.forEach(p => {
-                        container.innerHTML += `
-                            <div class="product-card">
-                                <img src="${p.image || 'https://via.placeholder.com/300x200?text=FIGURAX'}" class="product-img" alt="${p.name}">
-                                <div class="product-info">
-                                    <h3>${p.name}</h3>
-                                    <p style="color: #64748b; font-size: 0.9rem;">${p.category}</p>
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-                                        <span style="font-weight: bold; font-size: 1.2rem;">${p.price} EGP</span>
-                                        <button class="btn" onclick="addToCart('${p.id}')">أضف للسلة</button>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
-            } catch (e) { console.error(e); }
-        }
+<div class="toast" id="toast"></div>
 
-        function addToCart(id) {
-            const product = products.find(p => p.id === id);
-            if (product) {
-                cart.push(product);
-                updateCartUI();
-                alert('تمت إضافة المنتج للسلة');
-            }
-        }
+<script>
+// ⚠️ REPLACE THIS WITH YOUR DEPLOYED /exec URL AFTER GAS DEPLOY WITH "Anyone" ACCESS
+// Deploy → Manage deployments → Edit → Who has access: "Anyone" (NOT "Anyone with link")
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXDGLMtulxN23kDkNqDPPX7JYaJtOL4A15tN_u1apnjhe4jJvhlkDgvFas943gj9jy0w/exec';
+const STORE_WHATSAPP = '201119668221';
 
-        function updateCartUI() {
-            document.getElementById('cart-count').innerText = cart.length;
-            const total = cart.reduce((sum, item) => sum + parseFloat(item.price), 0);
-            document.getElementById('order-total').innerText = total + ' EGP';
-        }
+// State
+let allProducts = [];
+let currentCategory = 'all';
+let cart = JSON.parse(localStorage.getItem('figurax_cart') || '[]');
 
-        function openCheckout() {
-            if (cart.length === 0) return alert('السلة فارغة!');
-            document.getElementById('checkout-modal').classList.add('active');
-        }
+// DOM Elements
+const productsGrid = document.getElementById('productsGrid');
+const categoryList = document.getElementById('categoryList');
+const categorySidebar = document.getElementById('categorySidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+const cartSidebar = document.getElementById('cartSidebar');
+const cartOverlay = document.getElementById('cartOverlay');
+const cartCount = document.getElementById('cartCount');
+const cartTotalItems = document.getElementById('cartTotalItems');
+const cartItems = document.getElementById('cartItems');
+const cartTotal = document.getElementById('cartTotal');
+const checkoutBtn = document.getElementById('checkoutBtn');
+const toast = document.getElementById('toast');
 
-        function closeCheckout() {
-            document.getElementById('checkout-modal').classList.remove('active');
-        }
+// Unified API caller - handles both JSON and FormData
+async function api(action, payload = {}, method = 'POST') {
+  const formData = new FormData();
+  formData.append('action', action);
+  Object.entries(payload).forEach(([key, value]) => {
+    formData.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+  });
+  
+  const res = await fetch(APPS_SCRIPT_URL, { method, body: formData });
+  const data = await res.json();
+  if (!data.success) throw new Error(data.data?.error || 'Request failed');
+  return data.data;
+}
 
-        async function submitOrder() {
-            const name = document.getElementById('order-name').value.trim();
-            const phone = document.getElementById('order-phone').value.trim();
-            const address = document.getElementById('order-address').value.trim();
-            const notes = document.getElementById('order-notes').value.trim();
-            const total = document.getElementById('order-total').innerText;
+// Init
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadProducts();
+  updateCartUI();
+});
 
-            if (!name || !phone || !address) {
-                return alert('يرجى ملء جميع الحقول المطلوبة (الاسم، الهاتف، العنوان)');
-            }
+// Load Products
+async function loadProducts() {
+  try {
+    const { products } = await api('getProducts', {}, 'GET');
+    allProducts = products;
+    renderCategories();
+    filterProducts();
+  } catch (err) {
+    productsGrid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#ff4444;">خطأ في الاتصال بقاعدة البيانات</p>';
+  }
+}
 
-            const orderData = {
-                id: 'ORD-' + Date.now(),
-                name: name,
-                phone: phone,
-                address: address,
-                notes: notes,
-                total: total,
-                items: cart.map(p => p.name).join(', '),
-                date: new Date().toLocaleString('ar-EG')
-            };
+// Derive categories from products
+function renderCategories() {
+  const categories = [...new Set(allProducts.map(p => p.category || 'عام').filter(Boolean))];
+  const allBtn = categoryList.querySelector('[data-category="all"]');
+  categoryList.innerHTML = '';
+  categoryList.appendChild(allBtn);
+  
+  categories.forEach(cat => {
+    if (cat === 'الكل') return;
+    const btn = document.createElement('div');
+    btn.className = 'category-item';
+    btn.dataset.category = cat;
+    btn.onclick = () => selectCategory(cat, btn);
+    btn.innerHTML = `
+      <span class="category-icon">🏷️</span>
+      <span class="category-name">${cat}</span>
+      <span class="category-count" id="cat-count-${cat}">0</span>
+    `;
+    categoryList.appendChild(btn);
+  });
+  updateCategoryCounts();
+}
 
-            const submitBtn = document.querySelector('#checkout-modal .btn[style*="25D366"]');
-            const originalText = submitBtn.innerText;
-            submitBtn.innerText = 'جاري الحفظ والإرسال...';
-            submitBtn.disabled = true;
+function updateCategoryCounts() {
+  const counts = {};
+  allProducts.forEach(p => {
+    const cat = p.category || 'عام';
+    counts[cat] = (counts[cat] || 0) + 1;
+  });
+  document.getElementById('cat-count-all').textContent = allProducts.length;
+  Object.entries(counts).forEach(([cat, count]) => {
+    const el = document.getElementById(`cat-count-${cat}`);
+    if (el) el.textContent = count;
+  });
+}
 
-            try {
-                // 1. حفظ الطلب في Google Sheet
-                await api('addOrder', 'POST', orderData);
-                
-                // 2. تجهيز رسالة الواتساب
-                const message = `*طلب جديد من متجر FIGURAX*%0a%0a` +
-                                `*الاسم:* ${orderData.name}%0a` +
-                                `*الهاتف:* ${orderData.phone}%0a` +
-                                `*العنوان:* ${orderData.address}%0a` +
-                                `*المنتجات:* ${orderData.items}%0a` +
-                                `*ملاحظات:* ${orderData.notes || 'لا يوجد'}%0a` +
-                                `*الإجمالي:* ${orderData.total}%0a` +
-                                `*التاريخ:* ${orderData.date}`;
-                
-                const whatsappUrl = `https://wa.me/${STORE_WHATSAPP_NUMBER}?text=${message}`;
-                
-                // 3. فتح الواتساب
-                window.open(whatsappUrl, '_blank');
+function selectCategory(cat, btn) {
+  currentCategory = cat;
+  document.querySelectorAll('.category-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  closeSidebar();
+  filterProducts();
+}
 
-                // 4. تنظيف السلة وإغلاق النافذة
-                cart = [];
-                updateCartUI();
-                closeCheckout();
-                document.getElementById('order-name').value = '';
-                document.getElementById('order-phone').value = '';
-                document.getElementById('order-address').value = '';
-                document.getElementById('order-notes').value = '';
-                alert('تم تسجيل الطلب بنجاح! سيتم تحويلك للواتساب لإتمام التأكيد.');
+function openSidebar() {
+  categorySidebar.classList.add('active');
+  sidebarOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  categorySidebar.classList.remove('active');
+  sidebarOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
 
-            } catch (error) {
-                alert('حدث خطأ أثناء حفظ الطلب في الخادم، يرجى المحاولة مرة أخرى أو التواصل عبر الواتساب مباشرة.');
-                console.error(error);
-            } finally {
-                submitBtn.innerText = originalText;
-                submitBtn.disabled = false;
-            }
-        }
+function openCart() {
+  cartSidebar.classList.add('active');
+  cartOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  renderCartItems();
+}
+function closeCart() {
+  cartSidebar.classList.remove('active');
+  cartOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
 
-        window.onload = loadProducts;
-    </script>
+function filterProducts() {
+  let filtered = currentCategory === 'all' 
+    ? allProducts 
+    : allProducts.filter(p => (p.category || 'عام') === currentCategory);
+  
+  if (filtered.length === 0) {
+    productsGrid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:var(--muted);">لا توجد منتجات في هذا التصنيف</p>';
+    return;
+  }
+  
+  productsGrid.innerHTML = filtered.map(p => `
+    <div class="product-card" data-id="${p.id}">
+      <div class="product-image">
+        <img src="${p.imageUrl || 'https://via.placeholder.com/300'}" alt="${p.name}">
+      </div>
+      <div class="product-info">
+        <div class="product-category">${p.category || 'عام'}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">${Number(p.price || 0).toLocaleString()} EGP</div>
+        <button class="add-cart-btn" onclick="addToCart('${p.id}', event)" data-id="${p.id}">إضافة للسلة</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Cart Functions
+function addToCart(productId, e) {
+  const product = allProducts.find(p => p.id == productId);
+  if (!product) return;
+  
+  const existing = cart.find(item => item.id == productId);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: Number(product.price || 0),
+      image: product.imageUrl || 'https://via.placeholder.com/300',
+      qty: 1
+    });
+  }
+  saveCart();
+  updateCartUI();
+  showToast('تم إضافة المنتج للسلة');
+  
+  // Visual feedback on button
+  if (e && e.target) {
+    const btn = e.target;
+    btn.classList.add('added');
+    btn.textContent = 'تم الإضافة ✓';
+    setTimeout(() => {
+      btn.classList.remove('added');
+      btn.textContent = 'إضافة للسلة';
+    }, 1500);
+  }
+}
+
+function removeFromCart(productId) {
+  cart = cart.filter(item => item.id != productId);
+  saveCart();
+  updateCartUI();
+  renderCartItems();
+}
+
+function updateQty(productId, delta) {
+  const item = cart.find(i => i.id == productId);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) {
+    removeFromCart(productId);
+    return;
+  }
+  saveCart();
+  updateCartUI();
+  renderCartItems();
+}
+
+function saveCart() {
+  localStorage.setItem('figurax_cart', JSON.stringify(cart));
+}
+
+function updateCartUI() {
+  const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  
+  cartCount.textContent = totalItems;
+  cartTotalItems.textContent = totalItems;
+  cartTotal.textContent = totalPrice.toLocaleString() + ' EGP';
+  checkoutBtn.disabled = cart.length === 0;
+}
+
+function renderCartItems() {
+  if (cart.length === 0) {
+    cartItems.innerHTML = '<div class="cart-empty">السلة فارغة</div>';
+    return;
+  }
+  cartItems.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">${item.price.toLocaleString()} EGP</div>
+        <div class="cart-item-qty">
+          <button class="qty-btn" onclick="updateQty('${item.id}', -1)">−</button>
+          <span class="qty-value">${item.qty}</span>
+          <button class="qty-btn" onclick="updateQty('${item.id}', 1)">+</button>
+        </div>
+      </div>
+      <button class="cart-item-remove" onclick="removeFromCart('${item.id}')">🗑️</button>
+    </div>
+  `).join('');
+}
+
+// Checkout Modal
+function openCheckout() {
+  if (cart.length === 0) return;
+  closeCart();
+  
+  // Populate order summary
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  document.getElementById('orderSummaryItems').innerHTML = cart.map(item => `
+    <div class="summary-row">
+      <span>${item.name} x${item.qty}</span>
+      <span>${(item.price * item.qty).toLocaleString()} EGP</span>
+    </div>
+  `).join('');
+  document.getElementById('orderSummaryTotal').textContent = total.toLocaleString() + ' EGP';
+  
+  document.getElementById('checkoutModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCheckoutModal() {
+  document.getElementById('checkoutModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+async function submitOrder(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = 'جاري الإرسال...';
+
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const items = cart.map(item => ({
+    id: item.id,
+    name: item.name,
+    price: item.price,
+    qty: item.qty
+  }));
+
+  try {
+    const result = await api('addOrder', {
+      customerName: document.getElementById('customerName').value,
+      customerPhone: document.getElementById('customerPhone').value,
+      customerAddress: document.getElementById('customerAddress').value,
+      items: items,
+      total: total,
+      notes: document.getElementById('customerNotes').value
+    });
+    
+    showToast('تم إرسال طلبك بنجاح! رقم الطلب: ' + result.order?.id);
+    cart = [];
+    saveCart();
+    updateCartUI();
+    closeCheckoutModal();
+    document.getElementById('checkoutForm').reset();
+    
+    // Also send to WhatsApp
+    const message = `طلب جديد من FIGURAX:\n${items.map(i => `${i.name} x${i.qty}`).join(', ')}\nالإجمالي: ${total.toLocaleString()} EGP\nالعميل: ${document.getElementById('customerName').value}\nالهاتف: ${document.getElementById('customerPhone').value}\nالعنوان: ${document.getElementById('customerAddress').value}`;
+    const whatsappUrl = `https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(message)}`;
+    setTimeout(() => window.open(whatsappUrl, '_blank'), 1000);
+  } catch (err) {
+    console.error('Order error:', err);
+    showToast('خطأ في الاتصال: ' + err.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'إرسال الطلب وتأكيد الواتساب';
+  }
+}
+
+function showToast(msg, isError = false) {
+  toast.textContent = msg;
+  toast.classList.toggle('error', isError);
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+</script>
+
+<!-- Checkout Modal -->
+<div class="modal-overlay" id="checkoutModal" onclick="event.target===this && closeCheckoutModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">إتمام الطلب</span>
+      <button class="modal-close" onclick="closeCheckoutModal()">&times;</button>
+    </div>
+    <form id="checkoutForm" onsubmit="submitOrder(event)">
+      <div class="modal-body">
+        <div class="modal-row">
+          <div class="form-group">
+            <label for="customerName">الاسم بالكامل *</label>
+            <input type="text" id="customerName" required placeholder="محمد أحمد">
+          </div>
+          <div class="form-group">
+            <label for="customerPhone">رقم الهاتف *</label>
+            <input type="tel" id="customerPhone" required placeholder="01012345678" pattern="[0-9]{10,11}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="customerAddress">العنوان بالتفصيل *</label>
+          <textarea id="customerAddress" required rows="3" placeholder="العنوان الكامل: الشارع، المنطقة، المدينة، المحافظة"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="customerNotes">ملاحظات (اختياري)</label>
+          <textarea id="customerNotes" rows="2" placeholder="أي ملاحظات إضافية للطلب..."></textarea>
+        </div>
+        
+        <div class="order-summary">
+          <div style="font-weight:700; margin-bottom:12px; color:var(--primary);">ملخص الطلب</div>
+          <div id="orderSummaryItems"></div>
+          <div class="summary-row total">
+            <span>الإجمالي</span>
+            <span id="orderSummaryTotal">0 EGP</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="modal-btn secondary" onclick="closeCheckoutModal()">إلغاء</button>
+        <button type="submit" class="modal-btn primary">إرسال الطلب وتأكيد الواتساب</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 </body>
+</style>
 </html>

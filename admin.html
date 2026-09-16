@@ -1,182 +1,435 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIGURAX - Admin Dashboard</title>
-    <!-- إصلاح الخطوط باستخدام Google Fonts الرسمي -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; --text: #0f172a; --card: #ffffff; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 20px; }
-        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .login-box { background: var(--card); padding: 2rem; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 16px; }
-        .login-box button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: 600; }
-        .login-box button:hover { background: #1d4ed8; }
-        .hidden { display: none !important; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; background: var(--card); padding: 1rem; border-radius: 8px; }
-        .btn { padding: 8px 16px; background: var(--primary); color: white; text-decoration: none; border-radius: 6px; border: none; cursor: pointer; }
-        .btn-danger { background: #ef4444; }
-        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; margin-top: 1rem; }
-        th, td { padding: 12px; text-align: right; border-bottom: 1px solid #e2e8f0; }
-        th { background: #f1f5f9; font-weight: 600; }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIGURAX - Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+<style>
+  @font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400 900;
+    font-display: swap;
+    src: url(https://fonts.gstatic.com/s/inter/v19/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #C41E3A;
+  --bg: #0a0a0a;
+  --card: #111;
+  --border: #2a2a2a;
+  --text: #E8E8E8;
+  --muted: #A0A0A0;
+  --success: #00b894;
+  --danger: #ff4444;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+.login-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+.login-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.login-box h1 {
+  text-align: center;
+  font-size: 26px;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  color: var(--primary);
+  font-weight: 900;
+}
+.login-box p {
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 25px;
+  font-size: 13px;
+}
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.form-group input, .form-group select {
+  width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 6px; font-size: 14px;
+}
+.form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+.login-btn {
+  width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 10px;
+}
+.dashboard { display: none; }
+.dashboard.active { display: block; }
+.topbar {
+  background: rgba(10, 10, 10, 0.95); border-bottom: 1px solid var(--border); padding: 15px 0; position: sticky; top: 0; z-index: 100;
+}
+.container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+.topbar-content { display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 22px; font-weight: 900; color: var(--primary); letter-spacing: 2px; }
+.logout-btn { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 25px 0; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+.stat-label { color: var(--muted); font-size: 11px; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+.stat-value { font-size: 28px; font-weight: 900; color: var(--primary); }
+.tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; flex-wrap: wrap; }
+.tab-btn { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+.tab-btn.active, .tab-btn:hover { background: var(--primary); border-color: var(--primary); }
+.panel { display: none; }
+.panel.active { display: block; }
+.panel-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 25px; margin-bottom: 20px; }
+.panel-card h3 { margin-bottom: 20px; font-size: 18px; }
+.form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+.submit-btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+.table-wrapper { overflow-x: auto; margin-top: 15px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 12px; text-align: right; border-bottom: 1px solid var(--border); }
+th { background: var(--bg); color: var(--primary); text-transform: uppercase; font-size: 11px; }
+.action-btn { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+.action-btn.success { background: var(--success); }
+.toast {
+  position: fixed; bottom: 20px; left: 20px; background: var(--success); color: white; padding: 12px 20px; border-radius: 6px; font-weight: 600; z-index: 1000; opacity: 0; transition: 0.3s;
+}
+.toast.error { background: var(--danger); }
+.toast.show { opacity: 1; }
+</style>
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول -->
-    <div id="login-screen" class="login-overlay">
-        <div class="login-box">
-            <h2 style="margin-bottom: 1rem;">FIGURAX ADMIN</h2>
-            <p style="margin-bottom: 1.5rem; color: #64748b;">لوحة التحكم الإدارية</p>
-            <input type="password" id="admin-password" placeholder="كلمة المرور">
-            <button onclick="login()">دخول</button>
-            <a href="index.html" style="display: block; margin-top: 1rem; color: #64748b; text-decoration: none;">← العودة للمتجر</a>
-        </div>
+<!-- شاشة تسجيل الدخول -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <h1>FIGURAX</h1>
+    <p>لوحة التحكم الإدارية</p>
+    <form onsubmit="doLogin(event)">
+      <div class="form-group">
+        <label for="loginUser">اسم المستخدم</label>
+        <input type="text" id="loginUser" required>
+      </div>
+      <div class="form-group">
+        <label for="loginPass">كلمة المرور</label>
+        <input type="password" id="loginPass" required>
+      </div>
+      <button type="submit" class="login-btn">دخول</button>
+    </form>
+    <a href="index.html" style="display:block; text-align:center; margin-top:15px; color:var(--muted); font-size:12px; text-decoration:none;">← العودة للمتجر</a>
+  </div>
+</div>
+
+<!-- لوحة التحكم الرئيسية -->
+<div class="dashboard" id="dashboard">
+  <header class="topbar">
+    <div class="container">
+      <div class="topbar-content">
+        <div class="logo">FIGURAX ADMIN</div>
+        <button class="logout-btn" onclick="logout()">خروج</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">إجمالي المنتجات</div>
+        <div class="stat-value" id="statProducts">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">الطلبات الواردة</div>
+        <div class="stat-value" id="statOrders">0</div>
+      </div>
     </div>
 
-    <!-- لوحة التحكم -->
-    <div id="dashboard" class="hidden">
-        <header>
-            <h2>FIGURAX ADMIN</h2>
-            <div>
-                <button onclick="logout()" class="btn btn-danger">خروج</button>
-            </div>
-        </header>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showPanel('addProduct', this)">➕ إضافة منتج</button>
+      <button class="tab-btn" onclick="showPanel('stock', this)">📦 إدارة المخزون</button>
+      <button class="tab-btn" onclick="showPanel('orders', this)">🛒 الطلبات</button>
+    </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-            <div style="background: var(--card); padding: 1.5rem; border-radius: 8px; text-align: center;">
-                <h3>إجمالي المنتجات</h3>
-                <p id="total-products" style="font-size: 2rem; font-weight: bold; color: var(--primary);">0</p>
+    <!-- إضافة منتج -->
+    <div class="panel active" id="panel-addProduct">
+      <div class="panel-card">
+        <h3>إضافة منتج جديد للمتجر</h3>
+        <form onsubmit="addProduct(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="productName">اسم المنتج *</label>
+              <input type="text" id="productName" required>
             </div>
-            <div style="background: var(--card); padding: 1.5rem; border-radius: 8px; text-align: center;">
-                <h3>الطلبات الواردة</h3>
-                <p id="total-orders" style="font-size: 2rem; font-weight: bold; color: #10b981;">0</p>
+            <div class="form-group">
+              <label for="productCategory">القسم *</label>
+              <input type="text" id="productCategory" required placeholder="مثال: Figures">
             </div>
-        </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="productPrice">السعر (EGP) *</label>
+              <input type="number" id="productPrice" min="0" step="0.01" required>
+            </div>
+            <div class="form-group">
+              <label for="productStock">الكمية بالمخزن *</label>
+              <input type="number" id="productStock" min="0" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="productImage">رابط الصورة (Image URL)</label>
+            <input type="url" id="productImage" placeholder="https://...">
+          </div>
+          <button type="submit" class="submit-btn">حفظ وإضافة المنتج</button>
+        </form>
+      </div>
+    </div>
 
-        <div style="background: var(--card); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
-            <h3 style="margin-bottom: 1rem;">➕ إضافة منتج جديد</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                <div class="form-group"><label>اسم المنتج *</label><input type="text" id="prod-name"></div>
-                <div class="form-group"><label>القسم *</label><input type="text" id="prod-category"></div>
-                <div class="form-group"><label>السعر (EGP) *</label><input type="number" id="prod-price"></div>
-                <div class="form-group"><label>الكمية بالمخزن *</label><input type="number" id="prod-stock"></div>
-                <div class="form-group"><label>رابط الصورة</label><input type="text" id="prod-image"></div>
-            </div>
-            <button onclick="addProduct()" class="btn" style="margin-top: 1rem;">حفظ وإضافة المنتج</button>
-        </div>
-
+    <!-- إدارة المخزون -->
+    <div class="panel" id="panel-stock">
+      <div class="panel-card">
         <h3>مخزون المنتجات</h3>
-        <table id="products-table">
-            <thead><tr><th>المعرف</th><th>الاسم</th><th>السعر</th><th>المخزن</th><th>الإجراءات</th></tr></thead>
-            <tbody><tr><td colspan="5" style="text-align: center;">جاري التحميل...</td></tr></tbody>
-        </table>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>المعرف</th>
+                <th>الاسم</th>
+                <th>السعر</th>
+                <th>المخزن</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="stockTable">
+              <tr><td colspan="5" style="text-align:center; color:var(--muted);">جاري التحميل...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXDGLMtulxN23kDkNqDPPX7JYaJtOL4A15tN_u1apnjhe4jJvhlkDgvFas943gj9jy0w/exec';
-        const ADMIN_PASS = '123456'; // غيّر كلمة المرور هنا إذا أردت
+    <!-- الطلبات -->
+    <div class="panel" id="panel-orders">
+      <div class="panel-card">
+        <h3>طلبات العملاء</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>رقم الطلب</th>
+                <th>العميل</th>
+                <th>الهاتف</th>
+                <th>العنوان</th>
+                <th>الإجمالي</th>
+                <th>الحالة</th>
+                <th>التاريخ</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTable">
+              <tr><td colspan="8" style="text-align:center; color:var(--muted);">لا توجد طلبات</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // دالة الاتصال المصححة لحل مشكلة CORS
-        async function api(action, method = 'GET', body = null) {
-            const url = `${SCRIPT_URL}?action=${action}`;
-            const options = {
-                method: method,
-                redirect: 'follow', // هذا هو الحل السحري لمشكلة CORS مع Google Apps Script
-                headers: method === 'POST' ? { 'Content-Type': 'text/plain;charset=utf-8' } : {}
-            };
-            if (body) options.body = JSON.stringify(body);
+<div class="toast" id="toast"></div>
 
-            try {
-                const response = await fetch(url, options);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return await response.json();
-            } catch (error) {
-                console.error(`API Error [${action}]:`, error);
-                alert('حدث خطأ في الاتصال بالخادم، تأكد من إعدادات Google Apps Script');
-                throw error;
-            }
-        }
+<script>
+// ⚠️ REPLACE WITH YOUR DEPLOYED /exec URL (GAS must be deployed with "Anyone" access)
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXDGLMtulxN23kDkNqDPPX7JYaJtOL4A15tN_u1apnjhe4jJvhlkDgvFas943gj9jy0w/exec';
 
-        function checkAuth() {
-            if (localStorage.getItem('figurax_admin_auth') === 'true') {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-                loadData();
-            } else {
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('dashboard').classList.add('hidden');
-            }
-        }
+// Unified API caller - handles both JSON and FormData
+async function api(action, payload = {}, method = 'POST') {
+  const formData = new FormData();
+  formData.append('action', action);
+  Object.entries(payload).forEach(([key, value]) => {
+    formData.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+  });
+  
+  const res = await fetch(APPS_SCRIPT_URL, { method, body: formData });
+  const data = await res.json();
+  if (!data.success) throw new Error(data.data?.error || 'Request failed');
+  return data.data;
+}
 
-        function login() {
-            const pass = document.getElementById('admin-password').value;
-            if (pass === ADMIN_PASS) {
-                localStorage.setItem('figurax_admin_auth', 'true');
-                checkAuth();
-            } else {
-                alert('كلمة المرور غير صحيحة');
-            }
-        }
+function checkAuth() {
+  if (localStorage.getItem('admin_logged_in') === 'true') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').classList.add('active');
+    loadAllData();
+  }
+}
 
-        function logout() {
-            localStorage.removeItem('figurax_admin_auth');
-            window.location.reload();
-        }
+async function doLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('loginUser').value;
+  const password = document.getElementById('loginPass').value;
+  
+  try {
+    // Admin login handled via settings - simplified for demo
+    if (username === 'admin' && password === 'admin123') {
+      localStorage.setItem('admin_logged_in', 'true');
+      checkAuth();
+    } else {
+      showToast('بيانات الدخول غير صحيحة', true);
+    }
+  } catch (err) {
+    showToast('خطأ في الاتصال بالسيرفر', true);
+  }
+}
 
-        async function loadData() {
-            try {
-                const data = await api('getAdminData');
-                if (data.success) {
-                    document.getElementById('total-products').innerText = data.products.length;
-                    document.getElementById('total-orders').innerText = data.orders.length;
-                    
-                    const tbody = document.querySelector('#products-table tbody');
-                    tbody.innerHTML = '';
-                    data.products.forEach(p => {
-                        tbody.innerHTML += `<tr>
-                            <td>${p.id}</td>
-                            <td>${p.name}</td>
-                            <td>${p.price} EGP</td>
-                            <td>${p.stock}</td>
-                            <td><button class="btn btn-danger" onclick="deleteProduct('${p.id}')">حذف</button></td>
-                        </tr>`;
-                    });
-                }
-            } catch (e) { console.error(e); }
-        }
+function logout() {
+  localStorage.removeItem('admin_logged_in');
+  location.reload();
+}
 
-        async function addProduct() {
-            const product = {
-                name: document.getElementById('prod-name').value,
-                category: document.getElementById('prod-category').value,
-                price: document.getElementById('prod-price').value,
-                stock: document.getElementById('prod-stock').value,
-                image: document.getElementById('prod-image').value
-            };
-            if (!product.name || !product.price) return alert('يرجى ملء الحقول المطلوبة');
-            
-            await api('addProduct', 'POST', product);
-            alert('تمت إضافة المنتج بنجاح');
-            loadData();
-        }
+async function loadAllData() {
+  await Promise.all([loadProducts(), loadOrders()]);
+}
 
-        async function deleteProduct(id) {
-            if (confirm('هل أنت متأكد من الحذف؟')) {
-                await api('deleteProduct', 'POST', { id });
-                loadData();
-            }
-        }
+// ============================================================================
+// PRODUCT OPERATIONS
+// ============================================================================
 
-        window.onload = checkAuth;
-    </script>
+async function loadProducts() {
+  try {
+    const { products } = await api('getProducts', {}, 'GET');
+    document.getElementById('statProducts').textContent = products.length;
+    
+    const tbody = document.getElementById('stockTable');
+    if (products.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--muted);">لا توجد منتجات</td></tr>';
+      return;
+    }
+    tbody.innerHTML = products.map(p => `
+      <tr>
+        <td>${p.id || '-'}</td>
+        <td>${p.name || '-'}</td>
+        <td>${Number(p.price || 0).toLocaleString()} EGP</td>
+        <td><input type="number" value="${p.stock || 0}" id="stock-${p.id}" style="width:70px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:4px; border-radius:4px;"></td>
+        <td>
+          <button class="action-btn success" onclick="updateStock('${p.id}')">تحديث</button>
+          <button class="action-btn" onclick="deleteProduct('${p.id}')">حذف</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) { console.error(err); showToast('فشل تحميل المنتجات', true); }
+}
+
+async function addProduct(e) {
+  e.preventDefault();
+  try {
+    await api('addProduct', {
+      name: document.getElementById('productName').value,
+      category: document.getElementById('productCategory').value,
+      price: Number(document.getElementById('productPrice').value),
+      stock: Number(document.getElementById('productStock').value),
+      imageUrl: document.getElementById('productImage').value || 'https://via.placeholder.com/300'
+    });
+    showToast('تم إضافة المنتج بنجاح');
+    e.target.reset();
+    loadAllData();
+  } catch (err) { showToast(err.message || 'فشل الإضافة', true); }
+}
+
+async function updateStock(id) {
+  const newStock = document.getElementById('stock-' + id).value;
+  try {
+    await api('updateProduct', { id, stock: Number(newStock) });
+    showToast('تم تحديث المخزون');
+    loadProducts();
+  } catch (err) { showToast('فشل التحديث', true); }
+}
+
+async function deleteProduct(id) {
+  if(!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+  try {
+    await api('deleteProduct', { id });
+    showToast('تم الحذف بنجاح');
+    loadProducts();
+  } catch (err) { showToast('فشل الحذف', true); }
+}
+
+// ============================================================================
+// ORDER OPERATIONS
+// ============================================================================
+
+async function loadOrders() {
+  try {
+    const { orders } = await api('getAllOrders', {}, 'GET');
+    document.getElementById('statOrders').textContent = orders.length;
+    
+    const tbody = document.getElementById('ordersTable');
+    if (orders.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted);">لا توجد طلبات</td></tr>';
+      return;
+    }
+    tbody.innerHTML = orders.map(o => {
+      const status = o.status || 'جديد';
+      const isDelivered = ['مُسلم', 'تم التسليم', 'delivered', 'مسلم'].includes(status);
+      const statusClass = isDelivered ? 'success' : '';
+      const statusText = isDelivered ? '✓ مُسلم' : status;
+      
+      return `
+      <tr>
+        <td>${o.id || '-'}</td>
+        <td>${o.customerName || '-'}</td>
+        <td>${o.customerPhone || '-'}</td>
+        <td>${o.customerAddress || '-'}</td>
+        <td>${Number(o.total || 0).toLocaleString()} EGP</td>
+        <td><span class="action-btn ${statusClass}" style="font-size:11px; padding:4px 8px;">${statusText}</span></td>
+        <td>${o.createdAt ? new Date(o.createdAt).toLocaleDateString('ar-SA') : '-'}</td>
+        <td>
+          ${!isDelivered ? `<button class="action-btn success" onclick="markDelivered('${o.id}')">تسليم</button>` : ''}
+        </td>
+      </tr>
+    `}).join('');
+  } catch (err) { console.error(err); showToast('فشل تحميل الطلبات', true); }
+}
+
+async function markDelivered(orderId) {
+  if(!confirm('تأكيد تسليم الطلب ونقله للمعاملات المالية؟')) return;
+  
+  try {
+    await api('moveOrderToTransactions', { orderId });
+    showToast('تم تسليم الطلب ونقله للمعاملات');
+    loadOrders();
+  } catch (err) { showToast(err.message || 'فشل التسليم', true); }
+}
+
+// ============================================================================
+// UI HELPERS
+// ============================================================================
+
+function showPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function showToast(msg, isError = false) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.toggle('error', isError);
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+checkAuth();
+</script>
 </body>
+</style>
 </html>
